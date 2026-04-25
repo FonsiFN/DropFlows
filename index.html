@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DropFlow — Vende Sin Stock. Gana Sin Límites.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050508;
+  --bg2: #080810;
+  --blue: #2563EB;
+  --blue-bright: #3B82F6;
+  --blue-glow: rgba(37,99,235,0.4);
+  --blue-faint: rgba(37,99,235,0.08);
+  --text: #F0F0F8;
+  --muted: #6B7280;
+  --border: rgba(255,255,255,0.06);
+  --card: rgba(255,255,255,0.03);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── CANVAS PARTICLES ── */
+#canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 6%;
+  backdrop-filter: blur(16px);
+  background: rgba(5,5,8,0.7);
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.3s;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.logo span { color: var(--blue-bright); }
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+nav a:hover { color: var(--text); }
+
+.nav-links { display: flex; gap: 32px; }
+
+.nav-cta {
+  background: var(--blue);
+  color: #fff !important;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px !important;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s !important;
+}
+.nav-cta:hover {
+  background: var(--blue-bright) !important;
+  box-shadow: 0 0 24px var(--blue-glow) !important;
+}
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 6% 80px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.hero-bg-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue-faint);
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--blue-bright);
+  font-weight: 500;
+  margin-bottom: 32px;
+  animation: fadeUp 0.8s ease both;
+}
+
+.badge-dot {
+  width: 7px; height: 7px;
+  background: var(--blue-bright);
+  border-radius: 50%;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.6); }
+  50% { box-shadow: 0 0 0 6px rgba(59,130,246,0); }
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(42px, 7vw, 88px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+  animation: fadeUp 0.9s ease 0.1s both;
+}
+
+h1 .accent {
+  background: linear-gradient(135deg, #3B82F6, #818CF8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.7;
+  margin: 0 auto 48px;
+  animation: fadeUp 0.9s ease 0.2s both;
+  font-weight: 300;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.9s ease 0.3s both;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 16px 34px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 36px var(--blue-glow), 0 8px 24px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+.btn-primary:hover::after { opacity: 1; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 16px 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.04);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  margin-top: 72px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.9s ease 0.4s both;
+}
+
+.stat-item { text-align: center; }
+
+.stat-number {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text);
+  display: block;
+  letter-spacing: -1px;
+}
+.stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.stat-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+}
+
+/* ── SECTION COMMON ── */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 6%;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(32px, 4.5vw, 52px);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.section-sub {
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 300;
+  max-width: 540px;
+  line-height: 1.7;
+}
+
+/* ── QUÉ ES ── */
+#que-es {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ques-visual {
+  position: relative;
+}
+
+.flow-diagram {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.flow-diagram::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(37,99,235,0.05), transparent);
+}
+
+.flow-node {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: border-color 0.3s, background 0.3s;
+}
+.flow-node:hover {
+  border-color: rgba(37,99,235,0.4);
+  background: rgba(37,99,235,0.06);
+}
+
+.flow-node-icon {
+  width: 40px; height: 40px;
+  background: var(--blue-faint);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.flow-arrow {
+  text-align: center;
+  color: var(--blue-bright);
+  font-size: 20px;
+  margin: 2px 0;
+  opacity: 0.6;
+}
+
+.ques-content .section-sub { max-width: 100%; margin-bottom: 32px; }
+
+.pill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.pill {
+  background: var(--blue-faint);
+  border: 1px solid rgba(37,99,235,0.2);
+  color: var(--blue-bright);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ── PASOS ── */
+#pasos {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#pasos .section-header { margin-bottom: 64px; }
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2px;
+  background: var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.step-card {
+  background: var(--bg2);
+  padding: 40px 28px;
+  text-align: left;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.step-card:hover { background: rgba(37,99,235,0.06); }
+
+.step-number {
+  font-family: 'Syne', sans-serif;
+  font-size: 72px;
+  font-weight: 800;
+  color: rgba(37,99,235,0.12);
+  line-height: 1;
+  margin-bottom: 20px;
+  letter-spacing: -3px;
+}
+
+.step-icon {
+  width: 48px; height: 48px;
+  background: var(--blue-faint);
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.step-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.step-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--blue);
+  transition: width 0.4s ease;
+}
+.step-card:hover::after { width: 100%; }
+
+/* ── BENEFICIOS ── */
+#beneficios {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.benefits-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: end;
+  margin-bottom: 60px;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.benefit-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.benefit-card:hover {
+  border-color: rgba(37,99,235,0.3);
+  transform: translateY(-4px);
+}
+.benefit-card:hover::before { opacity: 1; }
+
+.benefit-icon {
+  font-size: 28px;
+  margin-bottom: 18px;
+  display: block;
+}
+
+.benefit-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.benefit-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ── POTENCIAL ECONÓMICO ── */
+#potencial {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.potencial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 60px;
+}
+
+.potencial-card {
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(37,99,235,0.03));
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: 20px;
+  padding: 40px 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.potencial-card::after {
+  content: '';
+  position: absolute;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(37,99,235,0.15), transparent);
+  top: -60px; right: -60px;
+}
+
+.potencial-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #fff, #93C5FD);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.potencial-label {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── CTA BAND ── */
+.cta-band {
+  position: relative;
+  z-index: 1;
+  margin: 0 6%;
+  background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(129,140,248,0.08));
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 24px;
+  padding: 72px 60px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.cta-band::before {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(37,99,235,0.2), transparent);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.cta-band h2 { font-size: clamp(28px, 4vw, 48px); margin-bottom: 16px; }
+.cta-band p { color: var(--muted); font-size: 18px; max-width: 500px; margin: 0 auto 40px; font-weight: 300; }
+
+/* ── FAQ ── */
+#faq {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+  padding-bottom: 60px;
+}
+
+#faq .section-header { margin-bottom: 48px; }
+
+.faq-list { text-align: left; }
+
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-q {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 22px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  text-align: left;
+  gap: 16px;
+  transition: color 0.2s;
+}
+.faq-q:hover { color: var(--blue-bright); }
+
+.faq-icon {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: transform 0.3s, border-color 0.3s;
+  color: var(--muted);
+}
+
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+  border-color: var(--blue);
+  color: var(--blue-bright);
+}
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.faq-item.open .faq-a {
+  max-height: 300px;
+  padding-bottom: 22px;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 40px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+footer .logo { font-size: 18px; }
+footer p { font-size: 13px; color: var(--muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ── NOISE OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  #que-es { grid-template-columns: 1fr; gap: 48px; }
+  .benefits-header { grid-template-columns: 1fr; gap: 24px; }
+  .benefits-grid { grid-template-columns: 1fr 1fr; }
+  .potencial-grid { grid-template-columns: 1fr; }
+  .cta-band { padding: 48px 28px; }
+  .nav-links { display: none; }
+  .hero-stats { gap: 28px; }
+  .stat-divider { display: none; }
+}
+
+@media (max-width: 600px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  section { padding: 72px 5%; }
+  h1 { letter-spacing: -1px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo">Drop<span>Flow</span></div>
+  <div class="nav-links">
+    <a href="#que-es">Qué es</a>
+    <a href="#pasos">Cómo empezar</a>
+    <a href="#beneficios">Beneficios</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a href="#cta" class="nav-cta">Empezar gratis →</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-glow"></div>
+
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    El negocio online que no para de crecer
+  </div>
+
+  <h1>Vende Sin Stock.<br><span class="accent">Gana Sin Límites.</span></h1>
+
+  <p class="hero-sub">
+    El dropshipping te permite montar un negocio real desde cero,
+    sin invertir en inventario. Solo necesitas una conexión a internet
+    y las ganas de empezar.
+  </p>
+
+  <div class="hero-ctas">
+    <a href="#pasos" class="btn-primary">
+      Quiero empezar ahora
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="#que-es" class="btn-ghost">Ver cómo funciona</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-number" data-target="591">0</span>
+      <div class="stat-label">Mil millones € de mercado en 2025</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number" data-target="0">0€</span>
+      <div class="stat-label">Inversión mínima en stock</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-number" data-target="72">0</span>
+      <div class="stat-label">Horas para lanzar tu tienda</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUÉ ES -->
+<section>
+<div id="que-es">
+  <div class="ques-visual reveal">
+    <div class="flow-diagram">
+      <div class="flow-node">
+        <div class="flow-node-icon">🛒</div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:2px">PASO 1</div>
+          Cliente compra en tu tienda
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">📦</div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:2px">PASO 2</div>
+          Tú recibes el pedido y el dinero
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node">
+        <div class="flow-node-icon">🏭</div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:2px">PASO 3</div>
+          Proveedor envía directo al cliente
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node" style="border-color:rgba(37,99,235,0.3);background:rgba(37,99,235,0.07)">
+        <div class="flow-node-icon">💰</div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:2px">RESULTADO</div>
+          Tú te quedas la diferencia
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ques-content">
+    <div class="section-label reveal">Qué es el dropshipping</div>
+    <h2 class="reveal reveal-delay-1">Un modelo de negocio sin almacén ni riesgo</h2>
+    <p class="section-sub reveal reveal-delay-2">
+      En dropshipping actúas como intermediario entre el proveedor y el cliente.
+      Tú pones la tienda, el marketing y el precio. El proveedor fabrica, almacena y envía.
+      Sin comprar stock por adelantado.
+    </p>
+
+    <div class="pill-tags reveal reveal-delay-3">
+      <span class="pill">Sin stock propio</span>
+      <span class="pill">100% online</span>
+      <span class="pill">Escalable</span>
+      <span class="pill">Desde casa</span>
+      <span class="pill">Cualquier nicho</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PASOS -->
+<section>
+<div id="pasos">
+  <div class="section-header">
+    <div class="section-label reveal">Cómo empezar</div>
+    <h2 class="reveal reveal-delay-1">5 pasos para lanzar<br>tu negocio esta semana</h2>
+  </div>
+
+  <div class="steps-grid reveal reveal-delay-2">
+    <div class="step-card">
+      <div class="step-number">01</div>
+      <div class="step-icon">🔍</div>
+      <div class="step-title">Elige tu nicho</div>
+      <p class="step-desc">Encuentra un segmento de mercado con demanda real y competencia manejable. Cuanto más específico, mejor.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">02</div>
+      <div class="step-icon">🤝</div>
+      <div class="step-title">Conecta proveedores</div>
+      <p class="step-desc">Plataformas como AliExpress, Spocket o CJ Dropshipping te conectan con miles de proveedores en minutos.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">03</div>
+      <div class="step-icon">🏪</div>
+      <div class="step-title">Monta tu tienda</div>
+      <p class="step-desc">Shopify o WooCommerce. Diseño profesional, pasarela de pago y dominio. Listo en 24-48 horas.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">04</div>
+      <div class="step-icon">📣</div>
+      <div class="step-title">Lanza tráfico</div>
+      <p class="step-desc">Meta Ads, TikTok Ads o SEO. Empieza con presupuesto pequeño, escala lo que funciona.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">05</div>
+      <div class="step-icon">⚡</div>
+      <div class="step-title">Optimiza y escala</div>
+      <p class="step-desc">Analiza datos, mejora anuncios y amplía catálogo. El sistema trabaja mientras tú duermes.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- BENEFICIOS -->
+<section>
+<div id="beneficios">
+  <div class="benefits-header">
+    <div>
+      <div class="section-label reveal">Beneficios</div>
+      <h2 class="reveal reveal-delay-1">Por qué miles de personas<br>eligen este modelo</h2>
+    </div>
+    <p class="section-sub reveal reveal-delay-2">
+      No es magia ni dinero fácil. Es un negocio real con ventajas que los modelos tradicionales no tienen.
+    </p>
+  </div>
+
+  <div class="benefits-grid">
+    <div class="benefit-card reveal">
+      <span class="benefit-icon">💸</span>
+      <div class="benefit-title">Capital inicial bajo</div>
+      <p class="benefit-desc">No necesitas miles de euros en stock. Puedes empezar con el presupuesto de un dominio y una suscripción.</p>
+    </div>
+    <div class="benefit-card reveal reveal-delay-1">
+      <span class="benefit-icon">🌍</span>
+      <div class="benefit-title">Vende a todo el mundo</div>
+      <p class="benefit-desc">Tu tienda es global desde el día uno. Sin fronteras, sin horarios, sin empleados en almacén.</p>
+    </div>
+    <div class="benefit-card reveal reveal-delay-2">
+      <span class="benefit-icon">📈</span>
+      <div class="benefit-title">Escalabilidad real</div>
+      <p class="benefit-desc">Más ventas no significan más trabajo manual. La logística la gestiona el proveedor automáticamente.</p>
+    </div>
+    <div class="benefit-card reveal reveal-delay-1">
+      <span class="benefit-icon">🧪</span>
+      <div class="benefit-title">Prueba sin riesgo</div>
+      <p class="benefit-desc">¿No se vende un producto? Lo eliminas y pruebas otro. Sin perder dinero en stock acumulado.</p>
+    </div>
+    <div class="benefit-card reveal reveal-delay-2">
+      <span class="benefit-icon">🕐</span>
+      <div class="benefit-title">Flexibilidad total</div>
+      <p class="benefit-desc">Gestiona tu negocio desde donde quieras. Ordenador + wifi = oficina. Compatible con otros trabajos.</p>
+    </div>
+    <div class="benefit-card reveal reveal-delay-3">
+      <span class="benefit-icon">🔁</span>
+      <div class="benefit-title">Automatización</div>
+      <p class="benefit-desc">Herramientas como DSers o AutoDS automatizan pedidos, precios y seguimiento de envíos.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- POTENCIAL ECONÓMICO -->
+<section>
+<div id="potencial" style="max-width:1100px;margin:0 auto;text-align:center">
+  <div class="section-label reveal">Potencial económico</div>
+  <h2 class="reveal reveal-delay-1">Números reales de un mercado en expansión</h2>
+  <p class="section-sub reveal reveal-delay-2" style="margin:0 auto">
+    El dropshipping no es moda. Es un sector que lleva años creciendo y seguirá haciéndolo.
+  </p>
+
+  <div class="potencial-grid reveal reveal-delay-2">
+    <div class="potencial-card">
+      <span class="potencial-value">591B€</span>
+      <div class="potencial-label">Mercado global estimado en 2025. La demanda de comercio online no para.</div>
+    </div>
+    <div class="potencial-card">
+      <span class="potencial-value">+23%</span>
+      <div class="potencial-label">Crecimiento anual proyectado hasta 2030. La curva sigue hacia arriba.</div>
+    </div>
+    <div class="potencial-card">
+      <span class="potencial-value">15-40%</span>
+      <div class="potencial-label">Margen de beneficio habitual por venta, dependiendo del nicho y el producto.</div>
+    </div>
+  </div>
+
+  <p class="reveal reveal-delay-3" style="color:var(--muted);font-size:14px;margin-top:28px;font-style:italic">
+    Los resultados dependen del trabajo, el nicho y la estrategia de cada persona. No hay garantías de ingresos fijos.
+  </p>
+</div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band reveal" id="cta">
+  <div class="section-label" style="margin-bottom:20px">Es el momento</div>
+  <h2>¿Sigues esperando<br>el momento perfecto?</h2>
+  <p>El mejor momento para empezar fue hace un año. El segundo mejor es hoy.</p>
+  <a href="#pasos" class="btn-primary" style="font-size:17px;padding:18px 40px">
+    Empieza tu negocio gratis
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</div>
+
+<!-- FAQ -->
+<section>
+<div id="faq">
+  <div class="section-header">
+    <div class="section-label reveal">Preguntas frecuentes</div>
+    <h2 class="reveal reveal-delay-1">Todo lo que necesitas saber</h2>
+  </div>
+
+  <div class="faq-list reveal reveal-delay-2">
+    <div class="faq-item">
+      <button class="faq-q">
+        ¿Necesito experiencia previa?
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">No. Muchos emprendedores de éxito en dropshipping empezaron desde cero. Las herramientas actuales están pensadas para personas sin conocimientos técnicos. Con dedicación y ganas de aprender, es totalmente accesible.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        ¿Cuánto dinero necesito para empezar?
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">Puedes empezar con menos de 100€: dominio, plataforma y primeros anuncios. Evidentemente, a más presupuesto de marketing, más velocidad de crecimiento. Pero el punto de entrada es muy bajo comparado con cualquier negocio tradicional.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        ¿Es legal el dropshipping en España/Europa?
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">Sí, es completamente legal. Deberás darte de alta como autónomo o constituir una empresa, facturar correctamente y cumplir con la normativa de comercio electrónico de la UE (GDPR, derecho de desistimiento, etc.).</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        ¿Cuánto tiempo tarda en generar ingresos?
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">Depende de muchos factores: nicho, inversión en publicidad, tiempo dedicado y habilidades. Algunos consiguen las primeras ventas en semanas, otros tardan meses. Es un negocio real que requiere trabajo constante, no un esquema de ingresos rápidos.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">
+        ¿Qué plataforma recomiendan para empezar?
+        <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a">Shopify es la opción más popular por su facilidad y ecosistema de apps. WooCommerce (sobre WordPress) es una alternativa más económica pero requiere algo más de configuración técnica. Ambas integran con los principales proveedores de dropshipping.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Drop<span>Flow</span></div>
+  <p>© 2025 DropFlow. Información educativa sobre comercio electrónico.</p>
+  <p style="font-size:13px;color:var(--muted)">No garantizamos resultados económicos específicos.</p>
+</footer>
+
+<script>
+// ── PARTICLES ────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function Particle() {
+  this.x  = Math.random() * W;
+  this.y  = Math.random() * H;
+  this.vx = (Math.random() - 0.5) * 0.3;
+  this.vy = (Math.random() - 0.5) * 0.3;
+  this.r  = Math.random() * 1.5 + 0.3;
+  this.a  = Math.random() * 0.5 + 0.1;
+}
+
+Particle.prototype.update = function() {
+  this.x += this.vx;
+  this.y += this.vy;
+  if (this.x < 0) this.x = W;
+  if (this.x > W) this.x = 0;
+  if (this.y < 0) this.y = H;
+  if (this.y > H) this.y = 0;
+};
+
+Particle.prototype.draw = function() {
+  ctx.beginPath();
+  ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(59,130,246,${this.a})`;
+  ctx.fill();
+};
+
+function initParticles() {
+  particles = [];
+  const n = Math.floor((W * H) / 14000);
+  for (let i = 0; i < n; i++) particles.push(new Particle());
+}
+
+function drawLines() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(37,99,235,${0.08 * (1 - d/120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function loop() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawLines();
+  requestAnimationFrame(loop);
+}
+
+resize();
+initParticles();
+loop();
+window.addEventListener('resize', () => { resize(); initParticles(); });
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => io.observe(el));
+
+// ── ANIMATED COUNTERS ────────────────────────────────────────────────────────
+function animateCounter(el, target, suffix) {
+  const duration = 1800;
+  const start    = performance.now();
+  function frame(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease     = 1 - Math.pow(1 - progress, 3);
+    const val      = Math.round(ease * target);
+    el.textContent = val + (suffix || '');
+    if (progress < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+const counters = document.querySelectorAll('[data-target]');
+const counterIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const target = parseInt(e.target.dataset.target);
+      animateCounter(e.target, target);
+      counterIO.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(el => counterIO.observe(el));
+
+// ── FAQ ACCORDION ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+// ── NAV SCROLL EFFECT ─────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 60) {
+    nav.style.padding = '14px 6%';
+  } else {
+    nav.style.padding = '20px 6%';
+  }
+});
+
+// ── BUTTON RIPPLE ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.btn-primary').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const rect   = this.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    const size   = Math.max(rect.width, rect.height);
+    ripple.style.cssText = `
+      position:absolute;width:${size}px;height:${size}px;
+      background:rgba(255,255,255,0.15);border-radius:50%;
+      top:${e.clientY - rect.top - size/2}px;
+      left:${e.clientX - rect.left - size/2}px;
+      transform:scale(0);animation:ripple 0.55s ease;pointer-events:none;
+    `;
+    this.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+});
+
+const style = document.createElement('style');
+style.textContent = `@keyframes ripple{to{transform:scale(2.5);opacity:0}}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
