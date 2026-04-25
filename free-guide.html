@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Guía Gratuita DropFlow</title>
+<link rel="shortcut icon" href="https://i.imgur.com/OCwB0NN.png">
+<link rel="apple-touch-icon" href="https://i.imgur.com/OCwB0NN.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050508;
+  --bg2: #080810;
+  --blue: #2563EB;
+  --blue-bright: #3B82F6;
+  --blue-glow: rgba(37,99,235,0.4);
+  --blue-faint: rgba(37,99,235,0.08);
+  --text: #F0F0F8;
+  --muted: #6B7280;
+  --border: rgba(255,255,255,0.06);
+  --card: rgba(255,255,255,0.03);
+  --warning: #F59E0B;
+  --warning-bg: rgba(245,158,11,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+#canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 6%;
+  backdrop-filter: blur(16px);
+  background: rgba(5,5,8,0.7);
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.3s;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logo span { color: var(--blue-bright); }
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+nav a:hover { color: var(--text); }
+
+.nav-links { display: flex; gap: 32px; }
+
+.nav-cta {
+  background: var(--blue);
+  color: #fff !important;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px !important;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s !important;
+}
+.nav-cta:hover {
+  background: var(--blue-bright) !important;
+  box-shadow: 0 0 24px var(--blue-glow) !important;
+}
+
+section {
+  position: relative;
+  z-index: 1;
+  padding: 120px 6% 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 3vw, 36px);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.section-sub {
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 300;
+  max-width: 600px;
+  line-height: 1.7;
+  margin: 0 auto 48px;
+}
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  margin-bottom: 60px;
+}
+
+.sidebar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.sidebar-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.sidebar-progress {
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sidebar-steps {
+  list-style: none;
+}
+
+.sidebar-steps li {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-steps li:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+
+.sidebar-steps li.active {
+  background: var(--blue-faint);
+  color: var(--blue-bright);
+  font-weight: 500;
+}
+
+.sidebar-steps li.completed {
+  color: #10B981;
+}
+
+.sidebar-steps li .step-ind {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sidebar-steps li.active .step-ind {
+  background: var(--blue-faint);
+  border: 1px solid rgba(37,99,235,0.3);
+}
+
+.sidebar-steps li.completed .step-ind {
+  background: rgba(16,185,129,0.15);
+  border: 1px solid rgba(16,185,129,0.3);
+}
+
+.sidebar-badge {
+  margin-top: 20px;
+  padding: 12px;
+  background: var(--warning-bg);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--warning);
+  text-align: center;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.step-panel:hover {
+  border-color: rgba(37,99,235,0.2);
+}
+
+.step-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(37,99,235,0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.step-panel:hover::before { opacity: 1; }
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.step-big-number {
+  font-family: 'Syne', sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  color: rgba(37,99,235,0.1);
+  line-height: 1;
+  letter-spacing: -3px;
+  flex-shrink: 0;
+}
+
+.step-icon-large {
+  width: 56px;
+  height: 56px;
+  background: var(--blue-faint);
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.step-content {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.step-content strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.checklist {
+  list-style: none;
+  margin-top: 16px;
+}
+
+.checklist li {
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.checklist li::before {
+  content: '☐';
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.checklist li.done::before {
+  content: '☑';
+  color: #10B981;
+}
+
+.tool-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.tool-card .tool-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.tool-card .tool-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tool-card .tool-desc {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.warning-box {
+  background: var(--warning-bg);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--warning);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.warning-box .warn-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tip-box {
+  background: rgba(16,185,129,0.06);
+  border: 1px solid rgba(16,185,129,0.15);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #10B981;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tip-box .tip-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.numbers-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.number-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.number-card .num {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.number-card .num-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 14px 28px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 36px var(--blue-glow), 0 8px 24px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+.btn-primary:hover::after { opacity: 1; }
+
+.upgrade-banner {
+  background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(129,140,248,0.06));
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.upgrade-banner h2 {
+  margin-bottom: 10px;
+}
+
+.upgrade-banner p {
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 500px;
+  margin: 0 auto 24px;
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 40px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+footer .logo { font-size: 18px; }
+footer p { font-size: 13px; color: var(--muted); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@media (max-width: 900px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
+  .nav-links { display: none; }
+  section { padding: 100px 5% 60px; }
+}
+
+@media (max-width: 600px) {
+  section { padding: 90px 5% 50px; }
+  .step-big-number { font-size: 42px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Drop<span>Flow</span></a>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="proveedores.html">PROVEEDORES</a>
+    <a href="automatizaciones.html">AUTOMATIZACIONES</a>
+  </div>
+  <a href="planes.html" class="nav-cta">Mejorar plan →</a>
+</nav>
+
+<section>
+  <div class="page-header reveal">
+    <div class="section-label">Dashboard — Plan Gratuito</div>
+    <h1>Tu guía paso a paso</h1>
+    <p class="section-sub">
+      Aprende lo básico del dropshipping con recursos limitados. Ideal para entender el modelo antes de invertir.
+    </p>
+  </div>
+
+  <div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar reveal">
+      <div class="sidebar-title">Progreso</div>
+      <div class="sidebar-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <span class="progress-text" id="progressText">0 de 6 pasos completados</span>
+      </div>
+
+      <ul class="sidebar-steps" id="sidebarSteps">
+        <li onclick="scrollToStep(1)" id="sideStep1">
+          <span class="step-ind">1</span> Elige tu nicho
+        </li>
+        <li onclick="scrollToStep(2)" id="sideStep2">
+          <span class="step-ind">2</span> Investiga productos
+        </li>
+        <li onclick="scrollToStep(3)" id="sideStep3">
+          <span class="step-ind">3</span> Crea tu tienda gratis
+        </li>
+        <li onclick="scrollToStep(4)" id="sideStep4">
+          <span class="step-ind">4</span> Encuentra proveedores
+        </li>
+        <li onclick="scrollToStep(5)" id="sideStep5">
+          <span class="step-ind">5</span> Primeros anuncios
+        </li>
+        <li onclick="scrollToStep(6)" id="sideStep6">
+          <span class="step-ind">6</span> Procesa tu primer pedido
+        </li>
+      </ul>
+
+      <div class="sidebar-badge">
+        ⚠️ Plan gratuito — Recursos limitados<br>Mejora a Pro para acceso completo
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+      <!-- PASO 1 -->
+      <div class="step-panel reveal" id="step1">
+        <div class="step-header">
+          <div class="step-big-number">01</div>
+          <div>
+            <div class="step-icon-large">🔍</div>
+            <h2>Elige tu nicho de mercado</h2>
+            <p class="step-content">
+              Un <strong>nicho</strong> es un segmento específico del mercado. No vale "deportes", tiene que ser algo como "accesorios para ciclismo de montaña" o "juguetes para gatos activos". Cuanto más concreto, <strong>menos competencia</strong> tendrás.
+            </p>
+
+            <div class="tip-box">
+              <span class="tip-icon">💡</span>
+              <div>
+                <strong>Consejo:</strong> Elige un nicho que conozcas o te guste. Trabajarás mejor si entiendes a tu cliente porque eres o has sido uno de ellos.
+              </div>
+            </div>
+
+            <div class="numbers-row">
+              <div class="number-card">
+                <div class="num">3-5</div>
+                <div class="num-label">Nichos a investigar antes de elegir</div>
+              </div>
+              <div class="number-card">
+                <div class="num">1k-10k</div>
+                <div class="num-label">Búsquedas/mes ideales en Google</div>
+              </div>
+              <div class="number-card">
+                <div class="num">10-50€</div>
+                <div class="num-label">Rango de precio ideal por producto</div>
+              </div>
+            </div>
+
+            <div class="checklist">
+              <li>¿Hay gente buscando este tipo de productos?</li>
+              <li>¿Puedes venderlos con un margen del 30-50%?</li>
+              <li>¿Hay competencia pero no demasiada?</li>
+              <li>¿El producto pesa poco y es fácil de enviar?</li>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🔧</span>
+              <div>
+                <div class="tool-name">Google Trends</div>
+                <div class="tool-desc">Herramienta gratuita para ver si un nicho está de moda o en declive. Busca tendencias de los últimos 12 meses.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2 -->
+      <div class="step-panel reveal" id="step2">
+        <div class="step-header">
+          <div class="step-big-number">02</div>
+          <div>
+            <div class="step-icon-large">📊</div>
+            <h2>Investiga productos ganadores</h2>
+            <p class="step-content">
+              Un <strong>producto ganador</strong> es aquel que la gente quiere comprar pero no encuentra fácilmente en tiendas físicas. Busca productos que <strong>resuelvan un problema</strong> o generen una reacción emocional ("¡lo necesito!").
+            </p>
+
+            <div class="warning-box">
+              <span class="warn-icon">⚠️</span>
+              <div>
+                <strong>Evita:</strong> Ropa de tallas (muchas devoluciones), electrónicos complejos (fallos y garantías), productos de marcas registradas (problemas legales).
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">📱</span>
+              <div>
+                <div class="tool-name">TikTok / Instagram Reels</div>
+                <div class="tool-desc">Busca hashtags como #TikTokMadeMeBuyIt o #AmazonFinds. Los productos virales suelen funcionar bien para dropshipping.</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🛒</span>
+              <div>
+                <div class="tool-name">AliExpress (búsqueda manual)</div>
+                <div class="tool-desc">Navega por categorías y mira los productos con más pedidos (>500). Lee las valoraciones con fotos reales de clientes.</div>
+              </div>
+            </div>
+
+            <div class="checklist">
+              <li>¿El producto tiene al menos 200 pedidos en AliExpress?</li>
+              <li>¿Las valoraciones son superiores a 4.5 estrellas?</li>
+              <li>¿Puedes venderlo por 3-5 veces su coste?</li>
+              <li>¿Hay fotos reales de clientes satisfechos?</li>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="step-panel reveal" id="step3">
+        <div class="step-header">
+          <div class="step-big-number">03</div>
+          <div>
+            <div class="step-icon-large">🏪</div>
+            <h2>Crea tu tienda online (casi gratis)</h2>
+            <p class="step-content">
+              Necesitas una tienda donde vender. La opción más rápida es <strong>Shopify</strong> (14 días de prueba gratis, luego ~27€/mes). La opción más barata es <strong>WooCommerce</strong> con WordPress (hosting desde 3€/mes).
+            </p>
+
+            <div class="numbers-row">
+              <div class="number-card">
+                <div class="num">0-3€</div>
+                <div class="num-label">Coste mínimo al mes con WooCommerce</div>
+              </div>
+              <div class="number-card">
+                <div class="num">24-48h</div>
+                <div class="num-label">Tiempo para tener la tienda lista</div>
+              </div>
+              <div class="number-card">
+                <div class="num">5-10</div>
+                <div class="num-label">Productos iniciales recomendados</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🛍️</span>
+              <div>
+                <div class="tool-name">Shopify (prueba 14 días)</div>
+                <div class="tool-desc">La plataforma más usada. Plantillas profesionales, fácil de usar y apps para dropshipping integradas. Prueba gratis sin tarjeta.</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🌐</span>
+              <div>
+                <div class="tool-name">WooCommerce + Hostinger</div>
+                <div class="tool-desc">Alternativa barata. Hosting desde 3€/mes + dominio gratis el primer año. Requiere más configuración pero es más económico a largo plazo.</div>
+              </div>
+            </div>
+
+            <div class="tip-box">
+              <span class="tip-icon">💡</span>
+              <div>
+                <strong>Qué necesitas sí o sí:</strong> Un dominio .com (~10€/año), fotos de calidad de los productos, una pasarela de pago (Stripe o PayPal) y textos que convenzan.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 4 -->
+      <div class="step-panel reveal" id="step4">
+        <div class="step-header">
+          <div class="step-big-number">04</div>
+          <div>
+            <div class="step-icon-large">📦</div>
+            <h2>Encuentra proveedores (opciones gratuitas)</h2>
+            <p class="step-content">
+              Con el plan gratuito tienes acceso a <strong>3 proveedores básicos</strong>. Son funcionales pero con limitaciones: envíos lentos, calidad variable y sin integración directa con tu tienda.
+            </p>
+
+            <div class="warning-box">
+              <span class="warn-icon">⚠️</span>
+              <div>
+                <strong>Importante:</strong> Con proveedores gratuitos tendrás que procesar los pedidos manualmente (copiar datos del cliente y pegarlos en la web del proveedor). Con 1-3 pedidos al día es manejable. Más de 5 se vuelve insostenible.
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">📦</span>
+              <div>
+                <div class="tool-name">AliExpress (gratis)</div>
+                <div class="tool-desc">Millones de productos. Busca proveedores con +95% de valoraciones positivas, +1 año de antigüedad y fotos reales. Envíos de 12-40 días.</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🏷️</span>
+              <div>
+                <div class="tool-name">DHgate (gratis)</div>
+                <div class="tool-desc">Mayorista chino. Precios más bajos pero sin integración automática. Ideal para pedidos al por mayor si encuentras un producto que se vende bien.</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🌐</span>
+              <div>
+                <div class="tool-name">Banggood (gratis)</div>
+                <div class="tool-desc">Similar a AliExpress. Algunos productos tienen almacenes en Europa. Verifica siempre los tiempos de envío estimados antes de publicar.</div>
+              </div>
+            </div>
+
+            <p class="step-content" style="margin-top:16px;">
+              <strong>¿Quieres mejores proveedores?</strong> Con envíos de 2-5 días desde USA/UE, integración 1-click y productos de calidad verificada, actualiza a un plan de pago para desbloquear nuestra lista premium.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 5 -->
+      <div class="step-panel reveal" id="step5">
+        <div class="step-header">
+          <div class="step-big-number">05</div>
+          <div>
+            <div class="step-icon-large">📣</div>
+            <h2>Lanza tus primeros anuncios</h2>
+            <p class="step-content">
+              Sin tráfico no hay ventas. Con poco presupuesto, empieza con <strong>anuncios en redes sociales</strong>. No necesitas ser experto, solo probar y ajustar.
+            </p>
+
+            <div class="numbers-row">
+              <div class="number-card">
+                <div class="num">5-10€</div>
+                <div class="num-label">Presupuesto diario mínimo para empezar</div>
+              </div>
+              <div class="number-card">
+                <div class="num">3-5 días</div>
+                <div class="num-label">Tiempo mínimo de prueba por anuncio</div>
+              </div>
+              <div class="number-card">
+                <div class="num">2-3</div>
+                <div class="num-label">Anuncios distintos para probar a la vez</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">📘</span>
+              <div>
+                <div class="tool-name">Meta Ads (Facebook e Instagram)</div>
+                <div class="tool-desc">La plataforma más usada. Crea un vídeo sencillo con tu móvil mostrando el producto. Segmenta por intereses relacionados con tu nicho. Presupuesto desde 5€/día.</div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <span class="tool-icon">🎵</span>
+              <div>
+                <div class="tool-name">TikTok Ads</div>
+                <div class="tool-desc">Ideal para productos virales. Los anuncios parecen contenido orgánico. Muy efectivo si tu producto es visual y llamativo. Desde 10€/día.</div>
+              </div>
+            </div>
+
+            <div class="tip-box">
+              <span class="tip-icon">💡</span>
+              <div>
+                <strong>Truco para empezar sin pagar:</strong> Crea una cuenta de TikTok/Instagram para tu tienda. Publica 2-3 vídeos al día mostrando productos. Si uno se hace viral, tendrás tráfico gratis y podrás validar si el producto interesa antes de invertir en anuncios.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 6 -->
+      <div class="step-panel reveal" id="step6">
+        <div class="step-header">
+          <div class="step-big-number">06</div>
+          <div>
+            <div class="step-icon-large">🎉</div>
+            <h2>Procesa tu primer pedido</h2>
+            <p class="step-content">
+              ¡Enhorabuena! Has recibido tu primer pedido. Ahora toca <strong>procesarlo manualmente</strong> (recuerda, con el plan gratuito no hay automatización).
+            </p>
+
+            <div class="checklist">
+              <li>Recibes el pago del cliente en tu tienda (Stripe/PayPal)</li>
+              <li>Vas a AliExpress (o tu proveedor) y compras el producto</li>
+              <li>Pones la dirección del cliente como dirección de envío</li>
+              <li>El proveedor envía el producto directamente al cliente</li>
+              <li>Copias el número de seguimiento y lo pegas en tu tienda</li>
+              <li>Envías un email al cliente confirmando el envío</li>
+            </div>
+
+            <div class="warning-box">
+              <span class="warn-icon">⚠️</span>
+              <div>
+                <strong>Atención:</strong> Con proveedores gratuitos los envíos pueden tardar 15-40 días. Sé transparente con tus clientes sobre los tiempos de entrega para evitar disputas y devoluciones.
+              </div>
+            </div>
+
+            <div class="numbers-row">
+              <div class="number-card">
+                <div class="num">15-40</div>
+                <div class="num-label">Días de envío con proveedores gratuitos</div>
+              </div>
+              <div class="number-card">
+                <div class="num">30-50%</div>
+                <div class="num-label">Margen de beneficio típico por venta</div>
+              </div>
+              <div class="number-card">
+                <div class="num">5 min</div>
+                <div class="num-label">Tiempo en procesar 1 pedido manual</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPGRADE BANNER -->
+      <div class="upgrade-banner reveal">
+        <h2>🚀 ¿Listo para escalar en serio?</h2>
+        <p>
+          Con el plan gratuito puedes aprender y hacer tus primeras ventas. Pero si quieres automatizar pedidos, acceder a proveedores premium con envíos rápidos y tener soporte prioritario, necesitas un plan Pro o Élite.
+        </p>
+        <a href="planes.html" class="btn-primary">
+          Ver planes y desbloquear todo
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="index.html" class="logo">Drop<span>Flow</span></a>
+  <p>© 2025 DropFlow. Información educativa sobre comercio electrónico.</p>
+  <p style="font-size:13px;color:var(--muted)">Plan gratuito — Recursos limitados</p>
+</footer>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function Particle() {
+  this.x  = Math.random() * W;
+  this.y  = Math.random() * H;
+  this.vx = (Math.random() - 0.5) * 0.3;
+  this.vy = (Math.random() - 0.5) * 0.3;
+  this.r  = Math.random() * 1.5 + 0.3;
+  this.a  = Math.random() * 0.5 + 0.1;
+}
+
+Particle.prototype.update = function() {
+  this.x += this.vx;
+  this.y += this.vy;
+  if (this.x < 0) this.x = W;
+  if (this.x > W) this.x = 0;
+  if (this.y < 0) this.y = H;
+  if (this.y > H) this.y = 0;
+};
+
+Particle.prototype.draw = function() {
+  ctx.beginPath();
+  ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(59,130,246,${this.a})`;
+  ctx.fill();
+};
+
+function initParticles() {
+  particles = [];
+  const n = Math.floor((W * H) / 14000);
+  for (let i = 0; i < n; i++) particles.push(new Particle());
+}
+
+function drawLines() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(37,99,235,${0.08 * (1 - d/120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function loop() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawLines();
+  requestAnimationFrame(loop);
+}
+
+resize();
+initParticles();
+loop();
+window.addEventListener('resize', () => { resize(); initParticles(); });
+
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => io.observe(el));
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 60) {
+    nav.style.padding = '14px 6%';
+  } else {
+    nav.style.padding = '20px 6%';
+  }
+  updateActiveStep();
+});
+
+document.querySelectorAll('.btn-primary').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const rect   = this.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    const size   = Math.max(rect.width, rect.height);
+    ripple.style.cssText = `
+      position:absolute;width:${size}px;height:${size}px;
+      background:rgba(255,255,255,0.15);border-radius:50%;
+      top:${e.clientY - rect.top - size/2}px;
+      left:${e.clientX - rect.left - size/2}px;
+      transform:scale(0);animation:ripple 0.55s ease;pointer-events:none;
+    `;
+    this.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+});
+
+const style2 = document.createElement('style');
+style2.textContent = `@keyframes ripple{to{transform:scale(2.5);opacity:0}}`;
+document.head.appendChild(style2);
+
+function scrollToStep(num) {
+  const el = document.getElementById('step' + num);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function updateActiveStep() {
+  const steps = document.querySelectorAll('.step-panel');
+  const sideItems = document.querySelectorAll('.sidebar-steps li');
+  let activeIndex = 0;
+
+  steps.forEach((step, i) => {
+    const rect = step.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.4) {
+      activeIndex = i;
+    }
+  });
+
+  sideItems.forEach((item, i) => {
+    item.classList.remove('active');
+    if (i === activeIndex) {
+      item.classList.add('active');
+    }
+    if (i < activeIndex) {
+      item.classList.add('completed');
+    } else {
+      item.classList.remove('completed');
+    }
+  });
+
+  const totalSteps = 6;
+  const completed = activeIndex;
+  const progressPercent = Math.round((completed / totalSteps) * 100);
+  document.getElementById('progressFill').style.width = progressPercent + '%';
+  document.getElementById('progressText').textContent = completed + ' de ' + totalSteps + ' pasos completados';
+}
+
+updateActiveStep();
+
+document.querySelectorAll('.checklist li').forEach(li => {
+  li.addEventListener('click', function() {
+    this.classList.toggle('done');
+    updateCompletedCount();
+  });
+});
+
+function updateCompletedCount() {
+  const totalChecklist = document.querySelectorAll('.checklist li').length;
+  const doneChecklist = document.querySelectorAll('.checklist li.done').length;
+}
+</script>
+</body>
+</html>
