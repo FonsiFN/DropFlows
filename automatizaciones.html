@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automatizaciones — DropFlow</title>
+<link rel="shortcut icon" href="https://i.imgur.com/OCwB0NN.png">
+<link rel="apple-touch-icon" href="https://i.imgur.com/OCwB0NN.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050508;
+  --bg2: #080810;
+  --blue: #2563EB;
+  --blue-bright: #3B82F6;
+  --blue-glow: rgba(37,99,235,0.4);
+  --blue-faint: rgba(37,99,235,0.08);
+  --text: #F0F0F8;
+  --muted: #6B7280;
+  --border: rgba(255,255,255,0.06);
+  --card: rgba(255,255,255,0.03);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+#canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 6%;
+  backdrop-filter: blur(16px);
+  background: rgba(5,5,8,0.7);
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.3s;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.logo span { color: var(--blue-bright); }
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+nav a:hover { color: var(--text); }
+
+.nav-links { display: flex; gap: 32px; }
+
+.nav-cta {
+  background: var(--blue);
+  color: #fff !important;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 14px !important;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s !important;
+}
+.nav-cta:hover {
+  background: var(--blue-bright) !important;
+  box-shadow: 0 0 24px var(--blue-glow) !important;
+}
+
+section {
+  position: relative;
+  z-index: 1;
+  padding: 120px 6% 80px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3.5vw, 40px);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.section-sub {
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 300;
+  max-width: 600px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.automation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto 60px;
+}
+
+.automation-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.automation-card.visible-card:hover {
+  border-color: rgba(37,99,235,0.3);
+  transform: translateY(-4px);
+}
+
+.automation-card.blurred {
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+
+.automation-card.blurred .blur-content {
+  filter: blur(12px);
+  opacity: 0.25;
+  pointer-events: none;
+  user-select: none;
+}
+
+.automation-card.blurred .blur-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  background: rgba(5,5,8,0.6);
+  text-align: center;
+  padding: 20px;
+}
+
+.automation-card.blurred .blur-overlay .lock-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.automation-card.blurred .blur-overlay span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.automation-icon {
+  font-size: 32px;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.automation-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.automation-level {
+  color: #F59E0B;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.automation-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.automation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.automation-tag {
+  background: var(--blue-faint);
+  border: 1px solid rgba(37,99,235,0.2);
+  color: var(--blue-bright);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 16px 34px;
+  border-radius: 10px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 36px var(--blue-glow), 0 8px 24px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+.btn-primary:hover::after { opacity: 1; }
+
+.unlock-section {
+  text-align: center;
+  max-width: 700px;
+  margin: 60px auto 0;
+  padding: 48px 32px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.1), rgba(37,99,235,0.03));
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: 20px;
+}
+
+.unlock-section h2 {
+  margin-bottom: 10px;
+}
+
+.unlock-section p {
+  color: var(--muted);
+  margin-bottom: 28px;
+  font-size: 16px;
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 40px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 80px;
+}
+
+footer .logo { font-size: 18px; }
+footer p { font-size: 13px; color: var(--muted); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 999;
+}
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  section { padding: 100px 5% 60px; }
+}
+
+@media (max-width: 600px) {
+  .automation-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<nav id="navbar">
+  <div class="logo">Drop<span>Flow</span></div>
+  <div class="nav-links">
+    <a href="index.html">HOME</a>
+    <a href="proveedores.html">PROVEEDORES</a>
+    <a href="automatizaciones.html" style="color:var(--text);">AUTOMATIZACIONES</a>
+  </div>
+  <a href="planes.html" class="nav-cta">Empezar gratis →</a>
+</nav>
+
+<section>
+  <div class="page-header reveal">
+    <div class="section-label">Automatizaciones</div>
+    <h1>Automatiza tu negocio<br>y escala sin límites</h1>
+    <p class="section-sub" style="margin:0 auto 48px;">
+      Las mejores herramientas para automatizar tu dropshipping. 3 visibles (básicas) y el resto bloqueadas. Desbloquéalas con un plan.
+    </p>
+  </div>
+
+  <div class="automation-grid">
+
+    <!-- AUTOMATIZACIÓN VISIBLE 1 (MALA) -->
+    <div class="automation-card visible-card reveal">
+      <span class="automation-icon">📝</span>
+      <div class="automation-name">Google Sheets Manual</div>
+      <div class="automation-level">⚡ Básico - Gratis</div>
+      <div class="automation-desc">Hoja de cálculo para gestionar pedidos manualmente. Propensa a errores humanos, no escala y requiere copiar/pegar datos constantemente.</div>
+      <div class="automation-tags">
+        <span class="automation-tag">Manual</span>
+        <span class="automation-tag">Errores</span>
+        <span class="automation-tag">No escala</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN VISIBLE 2 (MALA) -->
+    <div class="automation-card visible-card reveal reveal-delay-1">
+      <span class="automation-icon">📧</span>
+      <div class="automation-name">Notificaciones por Email</div>
+      <div class="automation-level">⚡ Básico - Limitado</div>
+      <div class="automation-desc">Alertas por correo para cada pedido. Bandeja de entrada saturada, sin integración con proveedores y seguimiento de envíos inexistente.</div>
+      <div class="automation-tags">
+        <span class="automation-tag">Bandeja saturada</span>
+        <span class="automation-tag">Sin tracking</span>
+        <span class="automation-tag">Lento</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN VISIBLE 3 (MALA) -->
+    <div class="automation-card visible-card reveal reveal-delay-2">
+      <span class="automation-icon">🖱️</span>
+      <div class="automation-name">Copiar y Pegar Pedidos</div>
+      <div class="automation-level">⚡ Básico - Tedioso</div>
+      <div class="automation-desc">Copias los datos del cliente y los pegas en la web del proveedor. Inviable con más de 5 pedidos al día. Riesgo de errores en direcciones.</div>
+      <div class="automation-tags">
+        <span class="automation-tag">Inviable</span>
+        <span class="automation-tag">Errores de dirección</span>
+        <span class="automation-tag">Tedioso</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN BLOQUEADA 1 -->
+    <div class="automation-card blurred reveal reveal-delay-1">
+      <div class="blur-content">
+        <span class="automation-icon">🚀</span>
+        <div class="automation-name">DSers Pro</div>
+        <div class="automation-level">🔥 Avanzado - 4.8/5</div>
+        <div class="automation-desc">Automatización completa de pedidos con AliExpress. Sincronización de inventario en tiempo real, precios dinámicos y reglas de envío automáticas. Procesa cientos de pedidos en segundos.</div>
+        <div class="automation-tags">
+          <span class="automation-tag">Pedidos en segundos</span>
+          <span class="automation-tag">Inventario real</span>
+          <span class="automation-tag">Precios dinámicos</span>
+        </div>
+      </div>
+      <div class="blur-overlay">
+        <div class="lock-icon">🔒</div>
+        <span>Desbloquea con un plan</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN BLOQUEADA 2 -->
+    <div class="automation-card blurred reveal reveal-delay-2">
+      <div class="blur-content">
+        <span class="automation-icon">⚡</span>
+        <div class="automation-name">AutoDS Advanced</div>
+        <div class="automation-level">🔥 Avanzado - 4.7/5</div>
+        <div class="automation-desc">Monitorización automática de precios de proveedores, actualización de stock en tiempo real y gestión de múltiples tiendas desde un solo panel. IA para optimizar márgenes.</div>
+        <div class="automation-tags">
+          <span class="automation-tag">Monitorización 24/7</span>
+          <span class="automation-tag">Multi-tienda</span>
+          <span class="automation-tag">IA integrada</span>
+        </div>
+      </div>
+      <div class="blur-overlay">
+        <div class="lock-icon">🔒</div>
+        <span>Desbloquea con un plan</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN BLOQUEADA 3 -->
+    <div class="automation-card blurred reveal reveal-delay-3">
+      <div class="blur-content">
+        <span class="automation-icon">🧠</span>
+        <div class="automation-name">ChatGPT + Zapier Flow</div>
+        <div class="automation-level">🔥 Élite - 4.9/5</div>
+        <div class="automation-desc">Automatización con IA para atención al cliente 24/7, generación de descripciones de producto, respuestas personalizadas y gestión de devoluciones sin intervención humana.</div>
+        <div class="automation-tags">
+          <span class="automation-tag">Atención 24/7</span>
+          <span class="automation-tag">IA conversacional</span>
+          <span class="automation-tag">Devoluciones auto</span>
+        </div>
+      </div>
+      <div class="blur-overlay">
+        <div class="lock-icon">🔒</div>
+        <span>Desbloquea con un plan</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN BLOQUEADA 4 -->
+    <div class="automation-card blurred reveal reveal-delay-1">
+      <div class="blur-content">
+        <span class="automation-icon">📊</span>
+        <div class="automation-name">Triple Whale Analytics</div>
+        <div class="automation-level">🔥 Élite - 4.8/5</div>
+        <div class="automation-desc">Dashboard unificado de métricas en tiempo real. ROI por campaña, LTV de clientes, atribución de ventas multicanal. Optimización automática de presupuesto publicitario.</div>
+        <div class="automation-tags">
+          <span class="automation-tag">ROI en tiempo real</span>
+          <span class="automation-tag">Atribución multicanal</span>
+          <span class="automation-tag">Presupuesto auto</span>
+        </div>
+      </div>
+      <div class="blur-overlay">
+        <div class="lock-icon">🔒</div>
+        <span>Desbloquea con un plan</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN BLOQUEADA 5 -->
+    <div class="automation-card blurred reveal reveal-delay-2">
+      <div class="blur-content">
+        <span class="automation-icon">🔄</span>
+        <div class="automation-name">Shopify Flow Elite</div>
+        <div class="automation-level">🔥 Élite - 4.6/5</div>
+        <div class="automation-desc">Workflows automatizados sin código. Segmentación de clientes, emails de abandono de carrito, etiquetado automático y recompensas VIP. Todo integrado nativamente.</div>
+        <div class="automation-tags">
+          <span class="automation-tag">Sin código</span>
+          <span class="automation-tag">Segmentación</span>
+          <span class="automation-tag">Nativo Shopify</span>
+        </div>
+      </div>
+      <div class="blur-overlay">
+        <div class="lock-icon">🔒</div>
+        <span>Desbloquea con un plan</span>
+      </div>
+    </div>
+
+    <!-- AUTOMATIZACIÓN BLOQUEADA 6 -->
+    <div class="automation-card blurred reveal reveal-delay-3">
+      <div class="blur-content">
+        <span class="automation-icon">🎯</span>
+        <div class="automation-name">AdScale AI Ads</div>
+        <div class="automation-level">🔥 Élite - 4.7/5</div>
+        <div class="automation-desc">Publicidad automatizada con IA que crea, prueba y escala anuncios en Meta, Google y TikTok. Optimización de pujas las 24 horas sin que toques nada.</div>
+        <div class="automation-tags">
+          <span class="automation-tag">Anuncios automáticos</span>
+          <span class="automation-tag">Multicanal</span>
+          <span class="automation-tag">Pujas 24/7</span>
+        </div>
+      </div>
+      <div class="blur-overlay">
+        <div class="lock-icon">🔒</div>
+        <span>Desbloquea con un plan</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="unlock-section reveal reveal-delay-3">
+    <h2>🔓 Desbloquea todas las automatizaciones</h2>
+    <p>Deja de perder tiempo con procesos manuales. Accede a las herramientas que usan los dropshippers profesionales para escalar sus negocios mientras duermen.</p>
+    <a href="planes.html" class="btn-primary">
+      Ver planes y desbloquear
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">Drop<span>Flow</span></div>
+  <p>© 2025 DropFlow. Información educativa sobre comercio electrónico.</p>
+  <p style="font-size:13px;color:var(--muted)">No garantizamos resultados económicos específicos.</p>
+</footer>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+
+function Particle() {
+  this.x  = Math.random() * W;
+  this.y  = Math.random() * H;
+  this.vx = (Math.random() - 0.5) * 0.3;
+  this.vy = (Math.random() - 0.5) * 0.3;
+  this.r  = Math.random() * 1.5 + 0.3;
+  this.a  = Math.random() * 0.5 + 0.1;
+}
+
+Particle.prototype.update = function() {
+  this.x += this.vx;
+  this.y += this.vy;
+  if (this.x < 0) this.x = W;
+  if (this.x > W) this.x = 0;
+  if (this.y < 0) this.y = H;
+  if (this.y > H) this.y = 0;
+};
+
+Particle.prototype.draw = function() {
+  ctx.beginPath();
+  ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(59,130,246,${this.a})`;
+  ctx.fill();
+};
+
+function initParticles() {
+  particles = [];
+  const n = Math.floor((W * H) / 14000);
+  for (let i = 0; i < n; i++) particles.push(new Particle());
+}
+
+function drawLines() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(37,99,235,${0.08 * (1 - d/120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function loop() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => { p.update(); p.draw(); });
+  drawLines();
+  requestAnimationFrame(loop);
+}
+
+resize();
+initParticles();
+loop();
+window.addEventListener('resize', () => { resize(); initParticles(); });
+
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => io.observe(el));
+
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  if (window.scrollY > 60) {
+    nav.style.padding = '14px 6%';
+  } else {
+    nav.style.padding = '20px 6%';
+  }
+});
+
+document.querySelectorAll('.btn-primary').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    const rect   = this.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    const size   = Math.max(rect.width, rect.height);
+    ripple.style.cssText = `
+      position:absolute;width:${size}px;height:${size}px;
+      background:rgba(255,255,255,0.15);border-radius:50%;
+      top:${e.clientY - rect.top - size/2}px;
+      left:${e.clientX - rect.left - size/2}px;
+      transform:scale(0);animation:ripple 0.55s ease;pointer-events:none;
+    `;
+    this.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  });
+});
+
+const style = document.createElement('style');
+style.textContent = `@keyframes ripple{to{transform:scale(2.5);opacity:0}}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
