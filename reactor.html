@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>⚛️ NUCLEAR REACTOR CONTROL | CORE SIMULATOR ⚛️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #0a0c12, #03050a);
+            font-family: 'Share Tech Mono', 'Fira Code', 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            transition: background 0.2s;
+        }
+        /* Crisis screen shake */
+        body.crisis-shake {
+            animation: shake 0.12s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px,1px); }
+            25% { transform: translate(-1px,-1px); }
+            50% { transform: translate(1px,0px); }
+            75% { transform: translate(-1px,1px); }
+            100% { transform: translate(0,0); }
+        }
+        /* Main panel container */
+        .reactor-dashboard {
+            max-width: 1500px;
+            margin: 0 auto;
+            background: rgba(0, 5, 12, 0.65);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            border: 1px solid #3a6ea5;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 25px rgba(0, 100, 200, 0.3);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        /* Header industrial */
+        .header-control {
+            background: #07141e;
+            padding: 18px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #2a6f8f;
+            flex-wrap: wrap;
+        }
+        .title {
+            font-size: 1.8rem;
+            letter-spacing: 6px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #c0e0ff, #3a86ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px #0af3;
+        }
+        .status-led-panel {
+            display: flex;
+            gap: 24px;
+        }
+        .led {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2e8b57;
+            box-shadow: 0 0 10px #0f0;
+            display: inline-block;
+            margin-right: 8px;
+            animation: pulse-led 1.5s infinite;
+        }
+        .led.red-alert {
+            background: #ff3333;
+            box-shadow: 0 0 12px red;
+            animation: blink-red 0.4s infinite;
+        }
+        @keyframes pulse-led {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        @keyframes blink-red {
+            0% { opacity: 0.2; transform: scale(0.9);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
+        /* 2 columns */
+        .main-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 28px;
+        }
+        .primary-gauges {
+            flex: 2.2;
+            min-width: 280px;
+        }
+        .secondary-controls {
+            flex: 1.3;
+            min-width: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        /* gauge cards */
+        .gauge-card {
+            background: #030b11cc;
+            border-radius: 32px;
+            padding: 18px;
+            margin-bottom: 20px;
+            border: 1px solid #2c6e9e;
+            backdrop-filter: blur(4px);
+        }
+        .gauge-label {
+            font-size: 0.8rem;
+            color: #9cdbff;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+        .gauge-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #f0f9ff;
+        }
+        .unit {
+            font-size: 0.9rem;
+            color: #5aa9dd;
+        }
+        .progress-bar-bg {
+            background: #10232e;
+            border-radius: 30px;
+            height: 18px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            transition: width 0.1s linear;
+            background: linear-gradient(90deg, #2ecc71, #f1c40f, #e67e22, #e74c3c);
+        }
+        /* Buttons + levers */
+        .control-group {
+            background: #030b11cc;
+            border-radius: 28px;
+            padding: 16px;
+            border: 1px solid #2c6e9e;
+        }
+        .btn-nuclear {
+            background: #1f3e48;
+            border: none;
+            padding: 12px 18px;
+            margin: 8px;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            font-family: monospace;
+            cursor: pointer;
+            transition: 0.1s linear;
+            box-shadow: inset 0 -2px 0 #0a1a22, 0 2px 6px black;
+        }
+        .btn-nuclear:active {
+            transform: scale(0.96);
+        }
+        .btn-danger {
+            background: #7a2e2e;
+            box-shadow: 0 0 6px red;
+        }
+        .btn-warning {
+            background: #a06e2a;
+        }
+        .lever {
+            background: #2a3b44;
+            padding: 12px;
+            border-radius: 40px;
+            margin: 12px 0;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 12px 0;
+            background: #1f3b44;
+            height: 6px;
+            border-radius: 10px;
+        }
+        /* logs panel */
+        .event-log {
+            background: #010a0fdd;
+            border-radius: 28px;
+            padding: 16px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            border: 1px solid #2f7faa;
+        }
+        .log-entry {
+            border-left: 3px solid #2a9eff;
+            padding: 5px 10px;
+            margin: 6px 0;
+            font-family: monospace;
+            color: #bbf0ff;
+        }
+        .graph-container {
+            height: 140px;
+            background: #041017;
+            border-radius: 20px;
+            margin-top: 12px;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            background: #010a0f;
+        }
+        .mode-switch {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+        }
+        .badge-mode {
+            background: #06212b;
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .badge-mode.active {
+            background: #0f6b8c;
+            box-shadow: 0 0 8px cyan;
+        }
+        hr {
+            border-color: #2f6f8a;
+            margin: 12px 0;
+        }
+        .blink-red-bg {
+            animation: bgFlash 0.2s infinite alternate;
+        }
+        @keyframes bgFlash {
+            from { background-color: #5a0000aa; }
+            to { background-color: #ff000033; }
+        }
+    </style>
+</head>
+<body>
+<div class="reactor-dashboard" id="dashboardRoot">
+    <div class="header-control">
+        <div class="title">☢️ REACTOR CORE v.ARK-3 | NUCLEAR SIMULATOR ☢️</div>
+        <div class="status-led-panel">
+            <div><span class="led" id="sysLed"></span> SYSTEM</div>
+            <div><span class="led" id="alertLed"></span> ALERT</div>
+            <div><span class="led" id="scramLed"></span> SCRAM</div>
+        </div>
+    </div>
+    <div class="main-grid">
+        <!-- LEFT: GAUGES & REAL TIME -->
+        <div class="primary-gauges">
+            <div class="gauge-card">
+                <div class="gauge-label">⚡ REACTOR POWER [MW]</div>
+                <div class="gauge-value"><span id="powerVal">0</span><span class="unit"> MW</span></div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="powerFill"></div></div>
+                <input type="range" id="powerSlider" min="0" max="120" value="30" step="1">
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">🌡️ CORE TEMPERATURE [°C]</div>
+                <div class="gauge-value"><span id="tempVal">350</span><span class="unit"> °C</span></div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="tempFill" style="background:#f39c12;"></div></div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">💨 PRESSURE [MPa]</div>
+                <div class="gauge-value"><span id="pressVal">7.2</span><span class="unit"> MPa</span></div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="pressFill"></div></div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">☢️ RADIATION LEVEL [μSv/h]</div>
+                <div class="gauge-value"><span id="radVal">0.8</span><span class="unit"> μSv/h</span></div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="radFill"></div></div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">⚙️ CONTROL RODS INSERTION</div>
+                <div class="gauge-value"><span id="rodVal">65</span><span class="unit"> %</span></div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="rodFill" style="background:#3a86ff;"></div></div>
+                <div class="lever">
+                    <span>🕹️ ROD POSITION (MANUAL)</span>
+                    <input type="range" id="rodSlider" min="0" max="100" value="65">
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: CONTROLS + EVENTS + GRAPH -->
+        <div class="secondary-controls">
+            <div class="control-group">
+                <div class="mode-switch" id="modeContainer">
+                    <div class="badge-mode" data-mode="auto">🤖 AUTO MODE</div>
+                    <div class="badge-mode active" data-mode="manual">🎮 MANUAL MODE</div>
+                </div>
+                <hr>
+                <button class="btn-nuclear" id="scramBtn">🚨 SCRAM (EMERGENCY SHUTDOWN)</button>
+                <button class="btn-nuclear btn-warning" id="resetBtn">🔄 RESET / COOLDOWN</button>
+                <div style="margin-top: 10px; font-size:12px;">⚡ STABILITY SCORE: <span id="stabilityScore">100</span>%</div>
+            </div>
+            <div class="control-group">
+                <div>📊 CORE TELEMETRY (real-time graph)</div>
+                <div class="graph-container"><canvas id="trendCanvas" width="400" height="120"></canvas></div>
+            </div>
+            <div class="event-log" id="eventLogArea">
+                <div class="log-entry">⚛️ SYSTEM BOOT: REACTOR ONLINE</div>
+                <div class="log-entry">🟢 MODE: MANUAL</div>
+                <div class="log-entry">📡 MONITORING ACTIVE</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ------------------- REACTOR ENGINE -------------------
+    let power = 30;       // MW (0-120)
+    let temperature = 350; // °C base 300, scales with power
+    let pressure = 7.2;    // MPa
+    let radiation = 0.8;
+    let rodInsertion = 65; // % (100 = fully inserted = reduces reaction)
+    let mode = "manual";   // "auto" / "manual"
+    let stability = 100;
+    let meltdownActive = false;
+    let crisisFlag = false;
+    let intervalId = null;
+
+    // DOM elements
+    const powerSlider = document.getElementById("powerSlider");
+    const rodSlider = document.getElementById("rodSlider");
+    const powerVal = document.getElementById("powerVal");
+    const tempVal = document.getElementById("tempVal");
+    const pressVal = document.getElementById("pressVal");
+    const radVal = document.getElementById("radVal");
+    const rodVal = document.getElementById("rodVal");
+    const powerFill = document.getElementById("powerFill");
+    const tempFill = document.getElementById("tempFill");
+    const pressFill = document.getElementById("pressFill");
+    const radFill = document.getElementById("radFill");
+    const rodFill = document.getElementById("rodFill");
+    const stabilitySpan = document.getElementById("stabilityScore");
+    const sysLed = document.getElementById("sysLed");
+    const alertLed = document.getElementById("alertLed");
+    const scramLed = document.getElementById("scramLed");
+    const eventLog = document.getElementById("eventLogArea");
+    // graph
+    const trendCanvas = document.getElementById("trendCanvas");
+    let ctx = trendCanvas.getContext("2d");
+    let historyData = Array(40).fill(0); // power history relative
+
+    // Audio Context (Web Audio API)
+    let audioCtx = null;
+    let oscillator = null;
+    let gainNode = null;
+    let alarmOsc = null;
+    let alarmGain = null;
+    let alarmActive = false;
+    let ambientActive = false;
+
+    function initAudio() {
+        if(audioCtx) return;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = 0.15;
+        gainNode.connect(audioCtx.destination);
+        // ambient hum
+        oscillator = audioCtx.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.value = 55;
+        oscillator.connect(gainNode);
+        oscillator.start();
+        ambientActive = true;
+    }
+
+    function updateAmbientSound() {
+        if(!audioCtx || !gainNode) return;
+        let intensity = Math.min(1, power / 100);
+        let freq = 50 + (power * 0.8);
+        if(oscillator) oscillator.frequency.value = Math.min(180, freq);
+        gainNode.gain.value = 0.08 + intensity * 0.25;
+    }
+
+    function playBeep(frequency = 880, duration = 0.2, volume = 0.2){
+        if(!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const beepGain = audioCtx.createGain();
+        osc.connect(beepGain);
+        beepGain.connect(audioCtx.destination);
+        osc.frequency.value = frequency;
+        beepGain.gain.value = volume;
+        osc.start();
+        beepGain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function startAlarmSiren() {
+        if(alarmActive) return;
+        if(!audioCtx) initAudio();
+        alarmActive = true;
+        alarmOsc = audioCtx.createOscillator();
+        alarmGain = audioCtx.createGain();
+        alarmOsc.type = "sawtooth";
+        alarmOsc.connect(alarmGain);
+        alarmGain.connect(audioCtx.destination);
+        alarmGain.gain.value = 0;
+        alarmOsc.start();
+        let interval = setInterval(() => {
+            if(!alarmActive || meltdownActive) {
+                clearInterval(interval);
+                return;
+            }
+            let val = (Date.now() % 400) / 400;
+            let freq = 600 + (val > 0.5 ? 200 : 0);
+            if(alarmOsc) alarmOsc.frequency.value = freq;
+            alarmGain.gain.value = 0.25;
+            setTimeout(() => { if(alarmGain) alarmGain.gain.value = 0; }, 200);
+        }, 500);
+        window.alarmSirenInterval = interval;
+    }
+    function stopAlarmSiren() {
+        alarmActive = false;
+        if(window.alarmSirenInterval) clearInterval(window.alarmSirenInterval);
+        if(alarmOsc) { alarmOsc.stop(); alarmOsc = null; }
+    }
+
+    function addLog(msg, isError = false) {
+        let div = document.createElement("div");
+        div.className = "log-entry";
+        div.style.borderLeftColor = isError ? "#ff4444" : "#2a9eff";
+        div.style.color = isError ? "#ffaaaa" : "#bbf0ff";
+        div.innerHTML = `⏱️ ${new Date().toLocaleTimeString()} > ${msg}`;
+        eventLog.appendChild(div);
+        div.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if(eventLog.children.length > 35) eventLog.removeChild(eventLog.children[0]);
+    }
+
+    function computePhysics() {
+        let effectivePower = power * (1 - (rodInsertion / 100) * 0.85);
+        let targetTemp = 280 + (effectivePower * 3.2) + (Math.random() * 4 - 2);
+        temperature = Math.min(1250, Math.max(200, targetTemp));
+        let targetPressure = 5.5 + (effectivePower / 28) + (temperature / 380);
+        pressure = Math.min(19.5, targetPressure + (Math.random() * 0.4 - 0.2));
+        let radBase = (power / 80) * 2.5 + (temperature / 800) * 5;
+        radiation = Math.min(12.5, radBase + Math.random() * 0.2);
+        if(mode === "auto" && !meltdownActive) {
+            let desiredRod = Math.min(95, Math.max(10, 70 - (power / 2.2)));
+            rodInsertion = rodInsertion * 0.95 + desiredRod * 0.05;
+            rodInsertion = Math.min(98, Math.max(5, rodInsertion));
+            rodSlider.value = rodInsertion;
+        }
+        if(temperature > 950 || pressure > 17.5) {
+            if(!meltdownActive) triggerMeltdownRisk();
+        }
+        if(temperature > 1100 || pressure > 19) triggerMeltdown();
+        updateUI();
+        updateStability();
+    }
+
+    function updateStability() {
+        let tempScore = Math.max(0, 100 - Math.abs(500 - temperature) / 10);
+        let pressScore = Math.max(0, 100 - Math.abs(9 - pressure) * 8);
+        let radScore = Math.max(0, 100 - radiation * 9);
+        stability = Math.floor((tempScore + pressScore + radScore) / 3);
+        if(meltdownActive) stability = 0;
+        stabilitySpan.innerText = stability;
+        if(stability < 30 && !meltdownActive) activateCrisisMode();
+        else if(stability > 60 && crisisFlag) deactivateCrisisMode();
+        if(power > 95 && !meltdownActive) addLog("⚠️ HIGH POWER LIMIT: Core stress increasing!", true);
+    }
+
+    function activateCrisisMode() {
+        if(crisisFlag) return;
+        crisisFlag = true;
+        document.body.classList.add("crisis-shake");
+        alertLed.classList.add("red-alert");
+        addLog("🔴 CRITICAL ALARM: Core instability detected! Immediate action needed!", true);
+        startAlarmSiren();
+        playBeep(1000, 0.5, 0.4);
+    }
+    function deactivateCrisisMode() {
+        if(!crisisFlag) return;
+        crisisFlag = false;
+        document.body.classList.remove("crisis-shake");
+        alertLed.classList.remove("red-alert");
+        stopAlarmSiren();
+        addLog("🟢 ALARM CEASED: Stability returning to safe range.");
+    }
+    function triggerMeltdownRisk() {
+        if(meltdownActive) return;
+        addLog("💢 FUSION THRESHOLD APPROACHING!! Insert control rods or lower power!", true);
+        playBeep(1800, 0.3, 0.5);
+        if(!crisisFlag) activateCrisisMode();
+    }
+    function triggerMeltdown() {
+        if(meltdownActive) return;
+        meltdownActive = true;
+        addLog("💀💀 CORE MELTDOWN IN PROGRESS!!! RADIOACTIVE RELEASE 💀💀", true);
+        const rootDiv = document.getElementById("dashboardRoot");
+        rootDiv.style.background = "#4a0000aa";
+        rootDiv.style.boxShadow = "0 0 50px red";
+        document.body.style.background = "#2a0000";
+        stopAlarmSiren();
+        if(oscillator) oscillator.disconnect();
+        addLog("☠️ SIMULATION FAILED: REACTOR DESTROYED. Press RESET.", true);
+        clearInterval(intervalId);
+        intervalId = null;
+        stabilitySpan.innerText = "MELTDOWN";
+        scramLed.classList.add("red-alert");
+    }
+
+    function scram() {
+        addLog("🚨 SCRAM ACTIVATED! Emergency shutdown! Control rods fully inserted.", true);
+        power = 10;
+        powerSlider.value = power;
+        rodInsertion = 98;
+        rodSlider.value = rodInsertion;
+        if(mode === "auto") mode = "manual";
+        playBeep(440, 0.8, 0.5);
+        if(crisisFlag) deactivateCrisisMode();
+        updateUI();
+        computePhysics();
+    }
+
+    function resetReactor() {
+        if(meltdownActive) {
+            meltdownActive = false;
+            document.getElementById("dashboardRoot").style.background = "";
+            document.body.style.background = "";
+            scramLed.classList.remove("red-alert");
+            addLog("🔄 SYSTEM RESET: Reactor core stabilized.");
+        }
+        power = 30;
+        temperature = 350;
+        pressure = 7.2;
+        radiation = 0.8;
+        rodInsertion = 65;
+        stability = 90;
+        crisisFlag = false;
+        deactivateCrisisMode();
+        powerSlider.value = power;
+        rodSlider.value = rodInsertion;
+        if(intervalId) clearInterval(intervalId);
+        intervalId = setInterval(gameLoop, 500);
+        addLog("♻️ Reactor parameters reset. Stability restored.");
+        updateUI();
+        computePhysics();
+    }
+
+    function updateUI() {
+        powerVal.innerText = Math.floor(power);
+        tempVal.innerText = Math.floor(temperature);
+        pressVal.innerText = pressure.toFixed(1);
+        radVal.innerText = radiation.toFixed(1);
+        rodVal.innerText = Math.floor(rodInsertion);
+        let powerPercent = (power / 120) * 100;
+        powerFill.style.width = `${powerPercent}%`;
+        let tempPercent = Math.min(100, (temperature / 1200) * 100);
+        tempFill.style.width = `${tempPercent}%`;
+        let pressPercent = Math.min(100, (pressure / 20) * 100);
+        pressFill.style.width = `${pressPercent}%`;
+        let radPercent = Math.min(100, (radiation / 15) * 100);
+        radFill.style.width = `${radPercent}%`;
+        rodFill.style.width = `${rodInsertion}%`;
+        if(temperature > 850) tempFill.style.background = "#e67e22";
+        else if(temperature > 1050) tempFill.style.background = "#e74c3c";
+        else tempFill.style.background = "#f1c40f";
+        if(radiation > 7) radFill.style.background = "#e67e22";
+        updateAmbientSound();
+        updateGraph();
+    }
+
+    function updateGraph() {
+        if(!ctx) return;
+        let normPower = (power / 120) * 100;
+        historyData.push(normPower);
+        if(historyData.length > 50) historyData.shift();
+        ctx.clearRect(0, 0, trendCanvas.width, trendCanvas.height);
+        ctx.beginPath();
+        ctx.strokeStyle = "#0ff";
+        ctx.lineWidth = 2;
+        ctx.fillStyle = "#031018";
+        ctx.fillRect(0,0,trendCanvas.width,trendCanvas.height);
+        let step = trendCanvas.width / (historyData.length-1);
+        ctx.beginPath();
+        for(let i=0;i<historyData.length;i++) {
+            let x = i*step;
+            let y = trendCanvas.height - (historyData[i]/100)*trendCanvas.height;
+            if(i===0) ctx.moveTo(x,y);
+            else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+        ctx.fillStyle = "#0ff6";
+        for(let i=0;i<historyData.length;i+=5){
+            ctx.fillRect(i*step, trendCanvas.height-12, 2,8);
+        }
+    }
+
+    function randomEvent() {
+        if(meltdownActive) return;
+        let r = Math.random();
+        if(r < 0.12 && stability < 70) {
+            let eventType = Math.floor(Math.random()*3);
+            if(eventType===0) { pressure += 2.3; addLog("⚠️ UNEXPECTED PRESSURE SPIKE! Valve stuck.", true); playBeep(700,0.2); }
+            else if(eventType===1) { temperature += 45; addLog("⚠️ COOLANT PUMP FAILURE! Temperature rising!", true); playBeep(1200,0.3);}
+            else { radiation += 1.8; addLog("☢️ RADIATION LEAK DETECTED! Evacuation recommended.", true); playBeep(540,0.4);}
+        }
+        if(r<0.05 && mode==="auto" && power>85){
+            addLog("🤖 AUTO MODE LIMIT: power exceeded safe threshold, lowering rods.", false);
+            rodInsertion = Math.min(95, rodInsertion+12);
+        }
+    }
+
+    function gameLoop() {
+        if(meltdownActive) return;
+        if(mode === "manual") {
+            power = parseFloat(powerSlider.value);
+            rodInsertion = parseFloat(rodSlider.value);
+        } else {
+            let recomPower = 45 + (stability-50)/5;
+            recomPower = Math.min(95, Math.max(20, recomPower));
+            power = power * 0.92 + recomPower * 0.08;
+            powerSlider.value = power;
+            let autoRod = 55 + (power/3.5);
+            rodInsertion = rodInsertion*0.9 + autoRod*0.1;
+            rodSlider.value = rodInsertion;
+        }
+        power = Math.min(120, Math.max(0, power));
+        rodInsertion = Math.min(100, Math.max(0, rodInsertion));
+        computePhysics();
+        randomEvent();
+        if(temperature > 1000) activateCrisisMode();
+        if(pressure > 18.2 && !meltdownActive) addLog("💨 PRESSURE RELIEF VALVE OPENING!", true);
+        updateUI();
+        if(stability < 15 && power>70) addLog("⚡ IMMINENT CORE DAMAGE! Reduce power immediately!", true);
+    }
+
+    // mode toggles
+    document.querySelectorAll(".badge-mode").forEach(el => {
+        el.addEventListener("click", () => {
+            if(meltdownActive) { addLog("Cannot change mode during MELTDOWN. Reset first.", true); return; }
+            document.querySelectorAll(".badge-mode").forEach(m=>m.classList.remove("active"));
+            el.classList.add("active");
+            mode = el.getAttribute("data-mode");
+            addLog(`🔄 CONTROL MODE SWITCHED TO: ${mode.toUpperCase()}`);
+            if(mode === "auto") addLog("🤖 Auto-regulation engaged: system will balance rods and power limit.");
+            else addLog("🎮 Manual mode: Use sliders to manage reactor.");
+        });
+    });
+
+    document.getElementById("scramBtn").addEventListener("click", () => { if(!meltdownActive) { scram(); playBeep(800,0.5); } else addLog("Meltdown active, SCRAM failed!",true); });
+    document.getElementById("resetBtn").addEventListener("click", () => { resetReactor(); playBeep(660,0.3); if(meltdownActive) meltdownActive=false; });
+    powerSlider.addEventListener("input", () => { if(mode==="manual") power = parseFloat(powerSlider.value); });
+    rodSlider.addEventListener("input", () => { if(mode==="manual") rodInsertion = parseFloat(rodSlider.value); });
+    
+    function init() {
+        initAudio();
+        intervalId = setInterval(gameLoop, 520);
+        updateUI();
+        addLog("⚛️ REACTOR CONTROL v9.4 ONLINE | Manual mode active");
+        addLog("🎛️ Adjust power & rods to maintain stability >60%");
+    }
+    init();
+</script>
+</body>
+</html>
