@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>BWR-2000 | CONTROL DE REACTOR NUCLEAR</title>
+    <title>BWR-3000 | SIMULADOR DE REACTOR NUCLEAR</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,599 +11,561 @@
         }
 
         body {
-            background-color: #1a1a1a;
+            background-color: #0f0f0f;
             margin: 0;
-            padding: 20px;
-            font-family: 'Courier New', 'Fira Code', 'VT323', monospace;
+            padding: 12px;
+            font-family: 'Courier New', 'Fira Code', 'VT323', 'Consolas', monospace;
             font-weight: bold;
+            overflow-x: auto;
         }
 
-        /* PANEL PRINCIPAL - Estilo industrial áspero, sin glassmorphism */
-        .industrial-panel {
-            max-width: 1600px;
-            margin: 0 auto;
-            background-color: #2b2b2b;
-            border: 2px solid #8a8a8a;
-            padding: 16px;
+        /* PANEL PRINCIPAL - Estilo industrial puro */
+        .main-dashboard {
+            background-color: #232323;
+            border: 3px solid #8a8a8a;
+            padding: 12px;
+            min-width: 1300px;
             box-shadow: none;
-            transition: all 0.05s linear;
         }
 
-        /* Vibración crítica */
-        .vibrate-critical {
-            animation: industrialShake 0.08s infinite;
+        /* Header con pestaña de ayuda */
+        .industrial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #7a7a7a;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            flex-wrap: wrap;
         }
-
-        @keyframes industrialShake {
-            0% { transform: translate(0px, 0px); }
-            25% { transform: translate(1px, 1px); }
-            50% { transform: translate(-1px, -1px); }
-            75% { transform: translate(1px, 0px); }
-            100% { transform: translate(0px, 1px); }
+        .title-area {
+            color: #e0e0e0;
+            font-size: 20px;
+            letter-spacing: 2px;
         }
-
-        /* MELTDOWN overlay */
-        #meltdownOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(180, 0, 0, 0.65);
-            pointer-events: none;
-            z-index: 9999;
-            display: none;
-            mix-blend-mode: multiply;
+        .help-tab {
+            background-color: #1a1a1a;
+            border: 1px solid #c0c0c0;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-family: monospace;
+            font-weight: bold;
+            color: #ffcc44;
         }
+        .help-tab:hover { background-color: #333; }
+        .score-panel {
+            background: #000;
+            padding: 6px 12px;
+            border: 1px solid #9f9f9f;
+        }
+        .score-panel span { color: #ff6666; font-size: 22px; }
 
-        /* Layout en rejilla rígida */
-        .dashboard-grid {
+        /* LAYOUT GRID PRINCIPAL - alta densidad */
+        .grid-4col {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        /* Cada módulo industrial */
-        .module {
-            border: 1px solid #b0b0b0;
-            background-color: #242424;
-            padding: 12px 8px;
-            transition: none;
-            box-shadow: none;
-        }
-
-        .module-header {
-            font-family: monospace;
-            font-size: 14px;
-            font-weight: bold;
-            color: #e0e0e0;
-            background-color: #1f1f1f;
-            padding: 4px 6px;
+            gap: 10px;
             margin-bottom: 12px;
-            border-left: 4px solid #e0b000;
-            letter-spacing: 1px;
+        }
+        .module {
+            border: 1px solid #a0a0a0;
+            background: #262626;
+            padding: 8px 6px;
+        }
+        .module-header {
+            background: #1a1a1a;
+            color: #ffcc77;
+            padding: 4px 6px;
+            font-size: 13px;
+            border-left: 5px solid #ffaa33;
+            margin-bottom: 10px;
             text-transform: uppercase;
         }
-
-        /* Displays digitales (fondo negro, texto rojo intenso) */
-        .digital-display {
-            background-color: #000000;
-            color: #ff2a2a;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            font-size: 22px;
-            padding: 6px 8px;
+        .digital {
+            background: #000000;
+            color: #ff3333;
+            font-size: 20px;
+            padding: 4px 6px;
             text-align: right;
             border: 1px solid #6a6a6a;
-            letter-spacing: 2px;
-            text-shadow: 0 0 1px #ff0000;
+            font-family: monospace;
         }
-
-        .label {
-            color: #bcbcbc;
-            font-size: 11px;
-            text-transform: uppercase;
-            margin-top: 6px;
-            margin-bottom: 2px;
+        .label-sm {
+            font-size: 10px;
+            color: #bbbbbb;
+            margin-top: 5px;
         }
-
-        /* barras horizontales estilo analógico */
-        .bar-container {
-            background-color: #111;
+        .bar-h {
+            background: #111;
+            height: 16px;
             border: 1px solid #777;
-            height: 18px;
-            width: 100%;
             margin: 4px 0;
         }
-        .bar-fill {
-            height: 100%;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        .safe-bar { background-color: #e5b800; } /* amarillo zona segura */
-        .level-bar { background-color: #0099ff; } /* azul nivel actual */
-        .danger-bar { background-color: #cc0000; } /* rojo peligro */
+        .bar-fill { height: 100%; width: 0%; transition: width 0.05s linear; }
+        .fill-blue { background: #2288ff; }
+        .fill-yellow { background: #ccaa00; }
+        .fill-red { background: #cc0000; }
+        .fill-green { background: #2a8a2a; }
 
-        /* barra vertical (tanque) */
-        .vertical-tank {
-            background-color: #111;
-            border: 1px solid #888;
-            width: 100%;
-            height: 120px;
+        .v-tank {
+            background: #0a0a0a;
+            height: 100px;
+            border: 1px solid gray;
             position: relative;
-            margin: 8px 0;
+            margin: 6px 0;
         }
-        .water-fill {
-            background-color: #0077ff;
+        .water {
+            background: #2266cc;
             position: absolute;
             bottom: 0;
             width: 100%;
-            transition: height 0.1s;
+            transition: height 0.05s;
         }
 
-        /* botones industriales */
         .btn-ind {
-            background-color: #3a3a3a;
-            border: 1px solid #9e9e9e;
+            background: #3a3a3a;
+            border: 1px solid #888;
             color: #ddd;
             font-family: monospace;
-            font-weight: bold;
-            font-size: 13px;
-            padding: 6px 12px;
-            margin: 3px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: none;
-            box-shadow: none;
-        }
-        .btn-ind:active {
-            background-color: #5a5a5a;
-        }
-        .btn-yellow {
-            background-color: #8b7500;
-            border-color: #f5cb42;
-            color: #fff7c4;
-        }
-        .btn-red {
-            background-color: #8b0000;
-            border-color: #ff4d4d;
-            color: white;
-        }
-        .btn-emerg {
-            background-color: #aa0000;
-            border: 2px solid #ff8888;
-            font-size: 18px;
-            padding: 12px;
-            width: 100%;
-            font-weight: bold;
-        }
-
-        /* alarm panel */
-        .alarm-list {
-            background-color: #0a0a0a;
-            height: 150px;
-            overflow-y: auto;
             font-size: 11px;
-            color: #ffaa44;
-            border: 1px solid gray;
-            padding: 4px;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+            font-weight: bold;
         }
-        .alarm-entry {
-            border-bottom: 1px solid #333;
-            font-family: monospace;
-        }
+        .btn-yellow { background: #6e5c00; border-color: #eebb33; color: #ffe6aa; }
+        .btn-red { background: #8b0000; border-color: #ff6666; }
+        .btn-emerg { background: #aa2200; border: 2px solid red; font-size: 16px; padding: 8px; width: 100%; font-weight: bold; }
 
-        .blink-red {
-            animation: blinkWarning 0.8s step-end infinite;
-        }
-        @keyframes blinkWarning {
-            0%, 100% { background-color: #aa0000; color: white; border-color: white; }
-            50% { background-color: #2b0000; color: #ff8888; }
-        }
-
-        .inline-control {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin: 6px 0;
-        }
-
-        .score-area {
-            background: #1f1f1f;
-            text-align: center;
-            font-size: 18px;
-            border: 1px solid #aaa;
-            margin-top: 16px;
-            padding: 6px;
-        }
-
-        .console-log {
+        .alarm-window {
             background: #0f0f0f;
-            color: #0f0;
-            border: 1px solid #4a4a4a;
+            height: 130px;
+            overflow-y: auto;
             font-size: 10px;
-            padding: 6px;
+            border: 1px solid #6a6a6a;
+            padding: 4px;
+            color: #ffaa66;
+        }
+        .console-area {
+            background: #0a0a0a;
+            color: #0f0;
             height: 70px;
             overflow-y: auto;
+            font-size: 10px;
+            padding: 4px;
             font-family: monospace;
         }
+        .trend-canvas {
+            background: #101010;
+            border: 1px solid gray;
+            width: 100%;
+            height: 100px;
+        }
 
-        @media (max-width: 1000px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* MODAL AYUDA */
+        .help-modal {
+            display: none;
+            position: fixed;
+            top: 5%;
+            left: 10%;
+            width: 80%;
+            height: 85%;
+            background: #1e1e1e;
+            border: 4px solid #aaa;
+            z-index: 10000;
+            overflow-y: auto;
+            font-family: monospace;
+            color: #dddddd;
+            padding: 20px;
+        }
+        .close-help {
+            float: right;
+            background: #8b0000;
+            padding: 5px 12px;
+            cursor: pointer;
+        }
+        .help-modal h3 { color: #ffaa55; }
+
+        /* estados críticos */
+        .blink-critical { animation: blinkBg 0.4s infinite; }
+        @keyframes blinkBg { 0% { background-color: #8b0000; } 50% { background-color: #2a0000; } 100% { background-color: #8b0000; } }
+        .vibrate { animation: shake 0.07s infinite; }
+        @keyframes shake { 0% { transform: translate(0,0); } 25% { transform: translate(1px,1px); } 75% { transform: translate(-1px,-1px); } }
+        #meltdownOverlay {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(180,0,0,0.7);
+            pointer-events: none; z-index: 9999; display: none;
         }
     </style>
 </head>
 <body>
 <div id="meltdownOverlay"></div>
-<div class="industrial-panel" id="mainPanel">
-    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #aaa; margin-bottom: 12px; padding-bottom: 6px;">
-        <span style="color:#efefef;">⚛️ BWR-6 MARK III | REACTOR CONTROL STATION</span>
-        <span id="scoreDisplay" style="color:#ffaa33; background:#000; padding:0 8px;">SCORE: 0000</span>
+<div class="help-modal" id="helpModal">
+    <div class="close-help" id="closeHelpBtn">[X] CERRAR</div>
+    <h3>⚛️ MANUAL DE OPERACIÓN BWR-3000 ⚛️</h3>
+    <p><strong>OBJETIVO:</strong> Mantener estabilidad térmica y nuclear. Temperatura &lt; 305°C, Presión &lt; 1150 PSI, Nivel agua 40-85%.</p>
+    <hr>
+    <h4>🔧 PASOS PARA OPERACIÓN SEGURA:</h4>
+    <ul>
+        <li>1. <strong>CONTROL RODS:</strong> Retira barras (OUT) para aumentar potencia. Inserta (IN) para reducir. Vigila APRM/IRM.</li>
+        <li>2. <strong>RECIRCULATION SYSTEM:</strong> Ajusta Pump Speed para controlar flujo de núcleo (Core Flow).</li>
+        <li>3. <strong>LEVEL CONTROL:</strong> Activa START PUMP y ajusta SETPOINT para mantener nivel agua estable.</li>
+        <li>4. <strong>TURBINE/GENERATOR:</strong> Cierra BREAKER para generar electricidad. Usa GOVERNOR para regular RPM.</li>
+        <li>5. <strong>REACTOR MODE:</strong> Inicia en STARTUP → RUN. Si todo falla, SHUTDOWN o SCRAM de emergencia.</li>
+        <li>6. <strong>EVENTOS ALEATORIOS:</strong> Bombas fallan, picos de presión. Reacciona rápido para evitar SCRAM automático.</li>
+    </ul>
+    <h4>⚠️ ALARMAS CRÍTICAS: presión &gt; 1100 PSI o nivel &lt; 20% puede causar MELTDOWN.</h4>
+    <p><strong>BOTONES ACTIVOS:</strong> Raise/Lower setpoint, Start/Stop pump, In/Out rods, Governor, Breaker, Recirc Raise/Lower, SCRAM.</p>
+    <p><em>Puntuación por estabilidad. ¡Opera como un verdadero ingeniero nuclear!</em></p>
+    <button id="forceCloseHelp" class="btn-ind" style="margin-top:20px;">Cerrar y continuar</button>
+</div>
+
+<div class="main-dashboard" id="mainPanel">
+    <div class="industrial-header">
+        <div class="title-area">⚛️ BWR-3000 ADVANCED CORE SIMULATOR | CONTROL ROOM v3.0</div>
+        <div class="help-tab" id="helpButton">📘 AYUDA / TRAINING 📘</div>
+        <div class="score-panel">SCORE: <span id="scoreValue">0</span> pts &nbsp;|&nbsp; ESTADO: <span id="stabilityText">NOMINAL</span></div>
     </div>
 
-    <div class="dashboard-grid">
-        <!-- 1: REACTOR CORE STATUS -->
+    <div class="grid-4col">
+        <!-- 1. REACTOR CORE -->
         <div class="module">
-            <div class="module-header">REACTOR CORE STATUS</div>
-            <div class="label">POWER (%)</div>
-            <div class="digital-display" id="powerVal">0.0</div>
-            <div class="bar-container"><div id="powerBar" class="bar-fill level-bar" style="width:0%"></div></div>
-            <div class="label">CORE FLOW (%)</div>
-            <div class="digital-display" id="coreFlowVal">0.0</div>
-            <div class="bar-container"><div id="flowBar" class="bar-fill level-bar" style="width:0%"></div></div>
-            <div class="label">REACTOR PERIOD (s)</div>
-            <div class="digital-display" id="periodVal">+99.9</div>
-            <div class="label">APRM (NR)</div>
-            <div class="digital-display" id="aprmVal">0</div>
-            <div>IRM: <span id="irmVal" style="color:#ff5555">0</span> cps</div>
+            <div class="module-header">⚛️ REACTOR CORE STATUS</div>
+            <div class="label-sm">POWER (%)</div>
+            <div class="digital" id="powerVal">0.0</div>
+            <div class="bar-h"><div id="powerBarFill" class="bar-fill fill-blue" style="width:0%"></div></div>
+            <div class="label-sm">CORE FLOW (%)</div>
+            <div class="digital" id="coreFlowVal">0.0</div>
+            <div class="bar-h"><div id="flowBarFill" class="bar-fill fill-green" style="width:0%"></div></div>
+            <div class="label-sm">REACTOR PERIOD (s)</div>
+            <div class="digital" id="periodVal">+99.9</div>
+            <div class="label-sm">APRM (%) / IRM (cps)</div>
+            <div class="digital"><span id="aprmVal">0</span> % / <span id="irmVal">0</span> cps</div>
         </div>
-
-        <!-- 2: RPV -->
+        <!-- 2. RPV -->
         <div class="module">
-            <div class="module-header">RPV [REACTOR PRESSURE VESSEL]</div>
-            <div class="label">PRESIÓN (PSI)</div>
-            <div class="digital-display" id="pressureVal">0.0</div>
-            <div class="bar-container"><div id="pressBar" class="bar-fill danger-bar" style="width:0%"></div></div>
-            <div class="label">TEMPERATURA (°C)</div>
-            <div class="digital-display" id="tempVal">0.0</div>
-            <div class="bar-container"><div id="tempBar" class="bar-fill danger-bar" style="width:0%"></div></div>
-            <div class="label">NIVEL AGUA (TANQUE)</div>
-            <div class="vertical-tank" id="waterTank"><div id="waterFill" class="water-fill" style="height:60%"></div></div>
-            <div class="digital-display" id="waterLevelVal">0.0 %</div>
+            <div class="module-header">🏭 RPV (REACTOR VESSEL)</div>
+            <div class="label-sm">PRESIÓN (PSI)</div>
+            <div class="digital" id="pressureVal">0.0</div>
+            <div class="bar-h"><div id="pressBarFill" class="bar-fill fill-red" style="width:0%"></div></div>
+            <div class="label-sm">TEMPERATURA (°C)</div>
+            <div class="digital" id="tempVal">0.0</div>
+            <div class="bar-h"><div id="tempBarFill" class="bar-fill fill-red" style="width:0%"></div></div>
+            <div class="label-sm">NIVEL AGUA</div>
+            <div class="v-tank" id="tank"><div id="waterFillLevel" class="water" style="height:60%"></div></div>
+            <div class="digital" id="waterLevelNum">0.0 %</div>
         </div>
-
-        <!-- 3: LEVEL CONTROL SYSTEM -->
+        <!-- 3. LEVEL CONTROL SYSTEM -->
         <div class="module">
-            <div class="module-header">LEVEL CONTROL SYSTEM</div>
-            <div class="label">STEAM FLOW (t/h)</div>
-            <div class="digital-display" id="steamFlowVal">0</div>
-            <div class="label">FEEDWATER FLOW (t/h)</div>
-            <div class="digital-display" id="feedFlowVal">0</div>
-            <div class="label">SETPOINT (%)</div>
-            <div class="digital-display" id="levelSetpoint">55.0</div>
-            <div class="inline-control">
-                <button id="raiseSetpoint" class="btn-ind btn-yellow">RAISE</button>
-                <button id="lowerSetpoint" class="btn-ind btn-yellow">LOWER</button>
-                <button id="startPump" class="btn-ind">START PUMP</button>
-                <button id="stopPump" class="btn-ind">STOP PUMP</button>
+            <div class="module-header">💧 LEVEL CONTROL SYSTEM</div>
+            <div class="label-sm">STEAM FLOW (t/h)</div>
+            <div class="digital" id="steamFlowVal">0</div>
+            <div class="label-sm">FEEDWATER FLOW (t/h)</div>
+            <div class="digital" id="feedFlowVal">0</div>
+            <div class="label-sm">SETPOINT (%)</div>
+            <div class="digital" id="setpointVal">55.0</div>
+            <div style="display:flex; gap:4px; flex-wrap:wrap; margin:6px 0;">
+                <button id="raiseSP" class="btn-ind btn-yellow">RAISE SP</button>
+                <button id="lowerSP" class="btn-ind btn-yellow">LOWER SP</button>
+                <button id="startFeedPump" class="btn-ind">START PUMP</button>
+                <button id="stopFeedPump" class="btn-ind">STOP PUMP</button>
             </div>
-            <div class="label">PUMP STATUS: <span id="pumpStatus" style="color:#ffaa00">OFF</span></div>
+            <div class="label-sm">PUMP: <span id="pumpStatusLabel" style="color:#ffaa33">OFF</span></div>
+            <div class="label-sm">FLOW CONTROL VALVE: <span id="valvePos">AUTO</span></div>
         </div>
-
-        <!-- 4: CONTROL RODS -->
+        <!-- 4. CONTROL RODS -->
         <div class="module">
-            <div class="module-header">CONTROL RODS (CRITICAL)</div>
-            <div class="label">SELECTOR: ROD <span id="rodId">26-51</span></div>
-            <div class="inline-control">
-                <button id="prevRod" class="btn-ind">◀ PREV</button>
-                <button id="nextRod" class="btn-ind">NEXT ▶</button>
-            </div>
-            <div class="label">POSITION (%)</div>
-            <div class="digital-display" id="rodPosVal">0.0</div>
-            <div class="bar-container"><div id="rodBar" class="bar-fill safe-bar" style="width:0%"></div></div>
-            <div class="inline-control">
-                <button id="rodIn" class="btn-ind btn-yellow">IN (INSERT)</button>
-                <button id="rodOut" class="btn-ind btn-yellow">OUT (RETIRAR)</button>
-            </div>
-            <div class="label">GRUPO PROMEDIO: <span id="avgRodPos">0</span>%</div>
-        </div>
-
-        <!-- 5: REACTOR MODE -->
-        <div class="module">
-            <div class="module-header">REACTOR MODE</div>
-            <div style="background:#111; padding:8px; text-align:center;"><span id="modeText" class="digital-display" style="font-size:18px;">STARTUP</span></div>
-            <div class="inline-control">
-                <button id="startupBtn" class="btn-ind">STARTUP</button>
-                <button id="runBtn" class="btn-ind btn-yellow">RUN</button>
-                <button id="shutdownBtn" class="btn-ind">SHUTDOWN</button>
-            </div>
-            <button id="scramBtn" class="btn-emerg">⚠️ SCRAM ⚠️</button>
-        </div>
-
-        <!-- 6: TURBINE/GENERATOR -->
-        <div class="module">
-            <div class="module-header">TURBINE / GENERATOR</div>
-            <div class="label">RPM</div><div class="digital-display" id="rpmVal">0</div>
-            <div class="label">PRODUCCIÓN (MWe)</div><div class="digital-display" id="mweVal">0.0</div>
-            <div class="label">FREC (Hz) / kV</div><div class="digital-display"><span id="freqHz">0.0</span> Hz / <span id="voltKv">0.0</span> kV</div>
-            <div class="inline-control">
-                <button id="govUp" class="btn-ind">GOV RAISE</button>
-                <button id="govDown" class="btn-ind">GOV LOWER</button>
-                <button id="breakerBtn" class="btn-ind" style="background:#2c2c2c;">BREAKER CLOSE</button>
-            </div>
-            <div class="label">BREAKER: <span id="breakerState">OPEN</span></div>
-        </div>
-        
-        <!-- 7: RECIRCULATION SYSTEM -->
-        <div class="module">
-            <div class="module-header">RECIRCULATION SYSTEM</div>
-            <div class="label">PUMP SPEED (%)</div>
-            <div class="digital-display" id="pumpSpeedVal">70.0</div>
-            <div class="inline-control">
-                <button id="recircUp" class="btn-ind">RAISE</button>
-                <button id="recircDown" class="btn-ind">LOWER</button>
-            </div>
-            <div class="label">CORE FLOW AFECTADO</div>
-        </div>
-
-        <!-- 8: ALARM PANEL + LOGS -->
-        <div class="module" style="grid-column: span 2;">
-            <div class="module-header">⚠️ ALARMS & EVENT LOG ⚠️</div>
-            <div id="alarmContainer" class="alarm-list">
-                <div class="alarm-entry">[SYS] INICIANDO BWR-2000</div>
-            </div>
-            <div class="console-log" id="consoleLog">> Sistema listo. Modo STARTUP.</div>
+            <div class="module-header">🕹️ CONTROL RODS</div>
+            <div class="label-sm">SELECTED ROD: <span id="rodSelected">26-51</span></div>
+            <div><button id="prevRodBtn" class="btn-ind">◀ PREV</button> <button id="nextRodBtn" class="btn-ind">NEXT ▶</button></div>
+            <div class="label-sm">POSITION (%)</div>
+            <div class="digital" id="rodPosNum">0.0</div>
+            <div class="bar-h"><div id="rodBarFill" class="bar-fill fill-yellow" style="width:0%"></div></div>
+            <div><button id="rodInBtn" class="btn-ind">IN (INSERT)</button> <button id="rodOutBtn" class="btn-ind btn-yellow">OUT (RETIRAR)</button></div>
+            <div class="label-sm">ROD GROUP AVG: <span id="avgRodSpan">0</span>%</div>
+            <div class="label-sm">REACTIVITY: <span id="reactivitySpan">0.00</span> Δk/k</div>
         </div>
     </div>
 
-    <div class="score-area">
-        ESTABILIDAD: <span id="stabilityIndex">NOMINAL</span>
-        <div style="font-size:10px;">(Mantener T°<290°C, P<1050 PSI, Nivel 40-80%)</div>
+    <div class="grid-4col">
+        <!-- 5. REACTOR MODE + SCRAM -->
+        <div class="module">
+            <div class="module-header">⚠️ REACTOR MODE</div>
+            <div class="digital" id="modeDisplay" style="text-align:center;">STARTUP</div>
+            <div style="display:flex; gap:6px; margin:8px 0;">
+                <button id="modeStartup" class="btn-ind">STARTUP</button>
+                <button id="modeRun" class="btn-ind btn-yellow">RUN</button>
+                <button id="modeShutdown" class="btn-ind">SHUTDOWN</button>
+            </div>
+            <button id="scramBigBtn" class="btn-emerg">🚨 SCRAM EMERGENCIA 🚨</button>
+        </div>
+        <!-- 6. TURBINE/GENERATOR -->
+        <div class="module">
+            <div class="module-header">⚡ TURBINE / GENERATOR</div>
+            <div class="label-sm">RPM</div><div class="digital" id="rpmGen">0</div>
+            <div class="label-sm">PRODUCCIÓN (MWe)</div><div class="digital" id="mweGen">0.0</div>
+            <div class="label-sm">FREC (Hz) / kV</div><div class="digital"><span id="freqGen">0.0</span> Hz / <span id="kvGen">0.0</span> kV</div>
+            <div><button id="govRaise" class="btn-ind">GOV RAISE</button> <button id="govLower" class="btn-ind">GOV LOWER</button></div>
+            <div><button id="breakerBtnCtrl" class="btn-ind">BREAKER OPEN/CLOSE</button></div>
+            <div class="label-sm">BREAKER: <span id="breakerStateLabel">OPEN</span></div>
+        </div>
+        <!-- 7. RECIRCULATION SYSTEM -->
+        <div class="module">
+            <div class="module-header">🔄 RECIRCULATION SYSTEM</div>
+            <div class="label-sm">PUMP SPEED (%)</div>
+            <div class="digital" id="recircSpeedVal">70.0</div>
+            <div><button id="recircUpBtn" class="btn-ind">▲ RAISE</button> <button id="recircDownBtn" class="btn-ind">▼ LOWER</button></div>
+            <div class="label-sm">CORE INLET FLOW</div>
+            <div class="bar-h"><div id="coreInletBar" class="bar-fill fill-blue" style="width:0%"></div></div>
+            <div class="label-sm">JET PUMP ΔP (psi)</div><div class="digital" id="jetPumpDP">0.0</div>
+        </div>
+        <!-- 8. GRÁFICA TREND en tiempo real -->
+        <div class="module">
+            <div class="module-header">📈 TREND: POTENCIA / TEMP</div>
+            <canvas id="trendCanvas" class="trend-canvas" width="400" height="100" style="width:100%; height:100px;"></canvas>
+            <div class="label-sm">Últimos 60 seg | Rojo=Temperatura | Azul=Potencia</div>
+        </div>
     </div>
+
+    <!-- Fila de alarmas y consola -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+        <div class="module">
+            <div class="module-header">🔔 PANEL DE ALARMAS</div>
+            <div id="alarmList" class="alarm-window"></div>
+        </div>
+        <div class="module">
+            <div class="module-header">📋 CONSOLA DE EVENTOS</div>
+            <div id="consoleEvents" class="console-area"></div>
+        </div>
+    </div>
+    <div class="label-sm" style="text-align:center; margin-top:8px; color:#aaa;">⚠️ SIMULACIÓN DINÁMICA | EVENTOS ALEATORIOS | SONIDO MECÁNICO</div>
 </div>
 
 <script>
-    // ---------- ESTADO DEL REACTOR ----------
-    let state = {
-        power: 0.0,          // 0-120% pero normal hasta 100
-        coreFlow: 20.0,
-        pressure: 14.7,      // PSI
-        temperature: 25.0,
-        waterLevel: 60.0,    // % tanque
-        steamFlow: 0,
-        feedFlow: 0,
-        levelSetpoint: 55.0,
+    // ------------------ ESTADO PRINCIPAL ESTABLE ------------------
+    const state = {
+        power: 2.0,
+        coreFlow: 28,
+        pressure: 14.7,
+        temperature: 28,
+        waterLevel: 62,
+        steamFlow: 80,
+        feedFlow: 85,
+        levelSetpoint: 55,
         pumpOn: false,
-        rods: {},            // 8 barras simuladas
-        selectedRod: "26-51",
-        reactorMode: "STARTUP",  // STARTUP, RUN, SHUTDOWN
-        turbineGov: 0.5,     // 0-1
-        breakerClosed: false,
+        rodPositions: [48,48,48,48,48,48,48,48],
+        selectedRodIdx: 0,
+        rodNames: ["26-51","27-52","28-53","29-54","30-55","31-56","32-57","33-58"],
+        reactorMode: "STARTUP", // STARTUP, RUN, SHUTDOWN
         recircSpeed: 70.0,
+        turbineGov: 0.45,
+        breakerClosed: false,
         scramActive: false,
         meltdown: false,
-        alarmCritical: false,
-        score: 0,
-        rodPositions: [45, 52, 38, 70, 25, 60, 44, 55]  // indices
+        score: 500,
+        alarmCriticalFlag: false,
+        lastTimestamp: 0,
+        trendPower: new Array(60).fill(0),
+        trendTemp: new Array(60).fill(0),
+        frameCount: 0,
+        randomEventTimer: null
     };
-    const rodNames = ["26-51","27-52","28-53","29-54","30-55","31-56","32-57","33-58"];
+
+    // DOM Elements
+    const powerValDiv = document.getElementById('powerVal');
+    const powerBarFill = document.getElementById('powerBarFill');
+    const coreFlowValDiv = document.getElementById('coreFlowVal');
+    const flowBarFill = document.getElementById('flowBarFill');
+    const periodValDiv = document.getElementById('periodVal');
+    const aprmSpan = document.getElementById('aprmVal');
+    const irmSpan = document.getElementById('irmVal');
+    const pressureValDiv = document.getElementById('pressureVal');
+    const pressBarFill = document.getElementById('pressBarFill');
+    const tempValDiv = document.getElementById('tempVal');
+    const tempBarFill = document.getElementById('tempBarFill');
+    const waterFillDiv = document.getElementById('waterFillLevel');
+    const waterLevelNumSpan = document.getElementById('waterLevelNum');
+    const steamFlowSpan = document.getElementById('steamFlowVal');
+    const feedFlowSpan = document.getElementById('feedFlowVal');
+    const setpointSpan = document.getElementById('setpointVal');
+    const pumpStatusSpan = document.getElementById('pumpStatusLabel');
+    const rodSelectedSpan = document.getElementById('rodSelected');
+    const rodPosNumSpan = document.getElementById('rodPosNum');
+    const rodBarFill = document.getElementById('rodBarFill');
+    const avgRodSpan = document.getElementById('avgRodSpan');
+    const reactivitySpan = document.getElementById('reactivitySpan');
+    const modeDisplayDiv = document.getElementById('modeDisplay');
+    const recircSpeedSpan = document.getElementById('recircSpeedVal');
+    const coreInletBar = document.getElementById('coreInletBar');
+    const jetPumpDPSpan = document.getElementById('jetPumpDP');
+    const rpmGenSpan = document.getElementById('rpmGen');
+    const mweGenSpan = document.getElementById('mweGen');
+    const freqGenSpan = document.getElementById('freqGen');
+    const kvGenSpan = document.getElementById('kvGen');
+    const breakerStateSpan = document.getElementById('breakerStateLabel');
+    const scoreSpan = document.getElementById('scoreValue');
+    const stabilitySpan = document.getElementById('stabilityText');
+    const alarmDiv = document.getElementById('alarmList');
+    const consoleDiv = document.getElementById('consoleEvents');
+    const trendCanvas = document.getElementById('trendCanvas');
+    const ctx = trendCanvas.getContext('2d');
+
+    // Audio y efectos
     let audioCtx = null;
-    let humOsc = null;
-    let humGain = null;
-    let alarmInterval = null;
-    let warningBeepTimer = null;
-    let lastTimestamp = 0;
-    let randomEventTimeout = null;
+    function initAudio() { if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const hum = audioCtx.createOscillator(); const gain = audioCtx.createGain(); hum.type = 'sawtooth'; hum.frequency.value = 55; gain.gain.value = 0.08; hum.connect(gain); gain.connect(audioCtx.destination); hum.start(); } else if(audioCtx.state === 'suspended') audioCtx.resume(); }
+    function playClick() { if(audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.frequency.value = 1200; gain.gain.value = 0.05; osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.1); osc.stop(audioCtx.currentTime+0.1); } }
+    function playAlarmSiren() { if(audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type='square'; osc.frequency.value=880; gain.gain.value=0.2; osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+1.5); osc.stop(audioCtx.currentTime+1.5); } }
 
-    // DOM elements
-    const powerEl = document.getElementById('powerVal');
-    const powerBar = document.getElementById('powerBar');
-    const coreFlowEl = document.getElementById('coreFlowVal');
-    const flowBar = document.getElementById('flowBar');
-    const periodEl = document.getElementById('periodVal');
-    const aprmEl = document.getElementById('aprmVal');
-    const irmEl = document.getElementById('irmVal');
-    const pressureEl = document.getElementById('pressureVal');
-    const pressBar = document.getElementById('pressBar');
-    const tempEl = document.getElementById('tempVal');
-    const tempBar = document.getElementById('tempBar');
-    const waterFill = document.getElementById('waterFill');
-    const waterLevelVal = document.getElementById('waterLevelVal');
-    const steamFlowEl = document.getElementById('steamFlowVal');
-    const feedFlowEl = document.getElementById('feedFlowVal');
-    const levelSetpointEl = document.getElementById('levelSetpoint');
-    const pumpStatusSpan = document.getElementById('pumpStatus');
-    const rodPosVal = document.getElementById('rodPosVal');
-    const rodBar = document.getElementById('rodBar');
-    const avgRodPosSpan = document.getElementById('avgRodPos');
-    const modeText = document.getElementById('modeText');
-    const rpmVal = document.getElementById('rpmVal');
-    const mweVal = document.getElementById('mweVal');
-    const freqHzSpan = document.getElementById('freqHz');
-    const voltKvSpan = document.getElementById('voltKv');
-    const breakerStateSpan = document.getElementById('breakerState');
-    const pumpSpeedVal = document.getElementById('pumpSpeedVal');
-    const alarmContainer = document.getElementById('alarmContainer');
-    const consoleLog = document.getElementById('consoleLog');
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const stabilitySpan = document.getElementById('stabilityIndex');
-    const mainPanelDiv = document.getElementById('mainPanel');
-
-    function addAlarm(msg, severity = "WARNING") {
+    function addAlarm(msg, severity) {
         const div = document.createElement('div');
-        div.className = 'alarm-entry';
         div.innerHTML = `[${new Date().toLocaleTimeString()}] ${severity}: ${msg}`;
-        alarmContainer.prepend(div);
-        if(alarmContainer.children.length > 12) alarmContainer.removeChild(alarmContainer.lastChild);
-        addLog(msg, severity);
-        if(severity === "CRITICAL") {
-            if(!state.alarmCritical) playSiren();
-            state.alarmCritical = true;
-            document.getElementById('alarmContainer').classList.add('blink-red');
-            setTimeout(()=>{if(state.alarmCritical) document.getElementById('alarmContainer').classList.remove('blink-red');},2000);
-        } else if(severity === "WARNING") playWarningBeep();
+        div.style.color = severity==='CRITICAL'?'#ff5555':'#ffaa66';
+        alarmDiv.prepend(div);
+        if(alarmDiv.children.length>15) alarmDiv.removeChild(alarmDiv.lastChild);
+        addConsoleLog(msg, severity);
+        if(severity==='CRITICAL') { playAlarmSiren(); state.alarmCriticalFlag=true; }
+        if(severity==='WARNING') { if(audioCtx) { const b=audioCtx.createOscillator(); const g=audioCtx.createGain(); b.frequency.value=1500; g.gain.value=0.07; b.connect(g); g.connect(audioCtx.destination); b.start(); g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.25); b.stop(audioCtx.currentTime+0.25); } }
     }
-    function addLog(msg, type="INFO") {
-        const logDiv = document.getElementById('consoleLog');
-        logDiv.innerHTML += `\n> ${msg}`;
-        logDiv.scrollTop = logDiv.scrollHeight;
-        if(logDiv.children.length > 30) logDiv.innerHTML = logDiv.innerHTML.split('\n').slice(-25).join('\n');
-    }
-    function playMechanicalClick() { if(audioCtx) { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value=800; gain.gain.value=0.08; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime+0.15); osc.stop(audioCtx.currentTime+0.1); } }
-    function initAudio() { if(!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); humOsc = audioCtx.createOscillator(); humGain = audioCtx.createGain(); humOsc.type = 'sawtooth'; humOsc.frequency.value = 70; humGain.gain.value = 0.12; humOsc.connect(humGain); humGain.connect(audioCtx.destination); humOsc.start(); } else if(audioCtx.state === 'suspended') audioCtx.resume(); }
-    function playSiren() { if(audioCtx) { const now = audioCtx.currentTime; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.setValueAtTime(880, now); gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.0001, now+2); osc.start(); osc.stop(now+2); } }
-    function playWarningBeep() { if(audioCtx) { const beep = audioCtx.createOscillator(); const gain = audioCtx.createGain(); beep.connect(gain); gain.connect(audioCtx.destination); beep.frequency.value=1200; gain.gain.value=0.1; beep.start(); gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.25); beep.stop(audioCtx.currentTime+0.25); } }
+    function addConsoleLog(msg, type) { const logDiv = consoleDiv; logDiv.innerHTML += `\n> ${msg}`; logDiv.scrollTop = logDiv.scrollHeight; if(logDiv.innerHTML.length>2000) logDiv.innerHTML = logDiv.innerHTML.slice(-1500); }
 
-    // actualizar física
+    // SIMULACIÓN FÍSICA
     function updateSimulation(dt) {
         if(state.meltdown) return;
-        let targetPower = 0;
-        const avgRod = state.rodPositions.reduce((a,b)=>a+b,0)/state.rodPositions.length;
-        document.getElementById('avgRodPos').innerText = avgRod.toFixed(1);
-        let rodEffect = (avgRod / 100.0) * 1.2;
-        rodEffect = Math.min(1.2, Math.max(0.1, rodEffect));
-        let modeMult = state.reactorMode === "RUN" ? 1.0 : (state.reactorMode === "STARTUP" ? 0.45 : 0.08);
-        let recircEffect = state.recircSpeed / 100.0;
-        targetPower = rodEffect * modeMult * recircEffect * 100;
-        if(state.scramActive) { targetPower *= 0.02; state.power = Math.max(0, state.power - dt*15); }
-        else state.power += (targetPower - state.power) * dt * 0.8;
-        state.power = Math.min(105, Math.max(0, state.power));
-        // core flow relacionada con recirc
-        let desiredFlow = (state.recircSpeed / 100.0) * 85 + 15;
-        state.coreFlow += (desiredFlow - state.coreFlow) * dt * 1.2;
-        state.coreFlow = Math.min(110, Math.max(10, state.coreFlow));
-        // termohidraulica
-        let heatFromPower = state.power * 2.2;
-        let coolingFromFlow = state.coreFlow * 0.7;
-        let ambientLoss = 15;
-        let dTemp = (heatFromPower - coolingFromFlow - ambientLoss) * dt * 0.7;
+        if(state.scramActive) { state.power = Math.max(0, state.power - dt*45); if(state.power<0.5 && state.scramActive) state.scramActive=false; }
+        let avgRod = state.rodPositions.reduce((a,b)=>a+b,0)/8;
+        avgRodSpan.innerText = avgRod.toFixed(1);
+        let reactivity = (avgRod-45)/100;
+        reactivitySpan.innerText = reactivity.toFixed(4);
+        let modeMul = state.reactorMode==='RUN'?1.0: (state.reactorMode==='STARTUP'?0.38:0.05);
+        let flowEffect = (state.coreFlow/100)*0.9 + 0.2;
+        let targetPower = 100 * (avgRod/100) * modeMul * (state.recircSpeed/100) * flowEffect;
+        if(state.reactorMode==='SHUTDOWN') targetPower *= 0.1;
+        state.power += (targetPower - state.power) * dt * 1.2;
+        state.power = Math.min(112, Math.max(0, state.power));
+        let targetCoreFlow = 20 + (state.recircSpeed*0.8);
+        state.coreFlow += (targetCoreFlow - state.coreFlow) * dt * 1.5;
+        state.coreFlow = Math.min(105, Math.max(12, state.coreFlow));
+        let thermalPowerMW = state.power * 32;
+        let heatAdded = thermalPowerMW * 0.18;
+        let cooling = state.coreFlow * 1.9;
+        let dTemp = (heatAdded - cooling) * dt * 0.4;
         state.temperature += dTemp;
-        if(state.pumpOn) { let feedEffect = (state.feedFlow/3000)*40; state.waterLevel += (feedEffect - state.steamFlow/45) * dt * 2.5; }
-        else state.waterLevel -= (state.steamFlow/60)*dt*2;
-        state.waterLevel = Math.min(95, Math.max(5, state.waterLevel));
-        let pressureTarget = 14.7 + (state.temperature-25)*2.8 + (state.power/100)*180;
-        state.pressure += (pressureTarget - state.pressure)*dt*0.5;
-        state.pressure = Math.max(14, Math.min(1350, state.pressure));
-        state.steamFlow = Math.min(2800, state.power * 22 + 50);
-        if(state.pumpOn) state.feedFlow = Math.min(3200, (state.levelSetpoint/100)*2800 + 200);
-        else state.feedFlow = Math.max(0, state.feedFlow * (1 - dt*0.7));
-        // turbine
-        let turbinePower = (state.power/100)*(state.breakerClosed?1:0)* (state.turbineGov*0.8+0.3);
-        let mwOut = turbinePower * 72;
-        let rpmOut = (state.power/100)*(state.turbineGov*3000+500);
-        if(state.breakerClosed) rpmOut = Math.min(3650, rpmOut);
-        else rpmOut=0;
-        document.getElementById('rpmVal').innerText = Math.floor(rpmOut);
-        document.getElementById('mweVal').innerText = mwOut.toFixed(1);
-        document.getElementById('freqHz').innerText = (rpmOut/60).toFixed(1);
-        document.getElementById('voltKv').innerText = (mwOut/50+6).toFixed(1);
-        // ALARMAS Y PUNTUACIÓN
-        let instability = 0;
-        if(state.pressure > 1050) { addAlarm(`Presión excesiva ${state.pressure.toFixed(0)} PSI`, "CRITICAL"); instability+=30; }
-        else if(state.pressure > 980) addAlarm("Alta presión", "WARNING");
-        if(state.temperature > 290) { addAlarm(`Temperatura crítica ${state.temperature.toFixed(0)}°C`, "CRITICAL"); instability+=35; }
-        else if(state.temperature > 265) addAlarm("Temperatura elevada", "WARNING");
-        if(state.waterLevel < 30) { addAlarm("NIVEL DE AGUA PELIGROSO", "CRITICAL"); instability+=40; if(state.waterLevel<10 && !state.meltdown) meltdownSequence(); }
-        if(state.power>105) addAlarm("SOBREPOTENCIA", "CRITICAL");
-        let scoreDelta = Math.max(0, 50 - instability) * dt;
-        state.score += scoreDelta;
+        state.temperature = Math.min(380, Math.max(20, state.temperature));
+        let pressureTarget = 14.7 + (state.temperature-25)*2.3 + (state.power/100)*220;
+        state.pressure += (pressureTarget - state.pressure) * dt * 0.65;
+        state.pressure = Math.min(1450, Math.max(14, state.pressure));
+        // Nivel de agua
+        let flowDiff = (state.feedFlow - state.steamFlow) / 120;
+        if(state.pumpOn) state.waterLevel += flowDiff * dt * 2.2;
+        else state.waterLevel -= (state.steamFlow/180)*dt*1.8;
+        state.waterLevel += (state.levelSetpoint - state.waterLevel)*dt*0.1;
+        state.waterLevel = Math.min(96, Math.max(2, state.waterLevel));
+        state.steamFlow = state.power * 14.5 + 30;
+        if(state.pumpOn) state.feedFlow = state.levelSetpoint * 19 + 100;
+        else state.feedFlow *= (1 - dt*0.9);
+        state.feedFlow = Math.min(3100, Math.max(0, state.feedFlow));
+        // Turbina
+        let genPower = (state.power/100)*(state.breakerClosed?1:0)*(state.turbineGov*0.7+0.3)*95;
+        let rpm = (state.power/100)*(state.turbineGov*3200+300);
+        if(!state.breakerClosed) rpm=0;
+        rpmGenSpan.innerText = Math.floor(rpm);
+        mweGenSpan.innerText = genPower.toFixed(1);
+        freqGenSpan.innerText = (rpm/60).toFixed(1);
+        kvGenSpan.innerText = (genPower/8+5).toFixed(1);
+        // Score y estabilidad
+        let penalty = 0;
+        if(state.pressure>1100) penalty+=40;
+        if(state.temperature>305) penalty+=35;
+        if(state.waterLevel<25 || state.waterLevel>88) penalty+=25;
+        if(state.power>105) penalty+=20;
+        state.score += (50 - penalty) * dt;
         if(state.score<0) state.score=0;
-        scoreDisplay.innerText = `SCORE: ${Math.floor(state.score)}`;
-        let stabilityText = "NOMINAL";
-        if(instability>25) stabilityText="INESTABLE";
-        if(instability>55) stabilityText="PELIGRO";
-        stabilitySpan.innerText = stabilityText;
+        scoreSpan.innerText = Math.floor(state.score);
+        let stabMsg = "NOMINAL";
+        if(penalty>35) stabMsg = "CRÍTICO";
+        else if(penalty>15) stabMsg = "INESTABLE";
+        stabilitySpan.innerText = stabMsg;
+        if( (state.pressure>1250 || state.temperature>350 || state.waterLevel<10) && !state.meltdown) triggerMeltdown();
+        // alarmas automáticas
+        if(state.pressure>1100) addAlarm(`ALTA PRESIÓN: ${state.pressure.toFixed(0)} PSI`,"CRITICAL");
+        else if(state.pressure>980) addAlarm("Presión elevada","WARNING");
+        if(state.temperature>295) addAlarm(`TEMPERATURA EXCESIVA ${state.temperature.toFixed(0)}°C`,"CRITICAL");
+        if(state.waterLevel<25) addAlarm(`NIVEL BAJO: ${state.waterLevel.toFixed(0)}%`,"CRITICAL");
     }
-    function meltdownSequence() {
-        if(state.meltdown) return;
-        state.meltdown=true;
-        addAlarm("*** MELTDOWN EN PROGRESO ***", "CRITICAL");
-        document.getElementById('meltdownOverlay').style.display='block';
-        mainPanelDiv.classList.add('vibrate-critical');
-        setInterval(()=>{ if(state.meltdown) state.score = Math.max(0, state.score-5); },800);
-    }
+    function triggerMeltdown() { if(state.meltdown) return; state.meltdown=true; addAlarm("💀💀💀 MELTDOWN NUCLEAR DETECTADO 💀💀💀","CRITICAL"); document.getElementById('meltdownOverlay').style.display='block'; document.getElementById('mainPanel').classList.add('vibrate'); }
+
     function updateUI() {
-        powerEl.innerText = state.power.toFixed(1);
-        powerBar.style.width = (state.power/120*100)+'%';
-        coreFlowEl.innerText = state.coreFlow.toFixed(1);
-        flowBar.style.width = (state.coreFlow)+'%';
-        periodEl.innerText = (state.power>0.1?(50/(state.power+0.5)).toFixed(1):"+99.9");
-        aprmEl.innerText = Math.floor(state.power*3.2);
-        irmEl.innerText = Math.floor(state.power*2.5);
-        pressureEl.innerText = state.pressure.toFixed(0);
-        pressBar.style.width = (state.pressure/1350*100)+'%';
-        tempEl.innerText = state.temperature.toFixed(0);
-        tempBar.style.width = (state.temperature/350*100)+'%';
-        waterFill.style.height = state.waterLevel+'%';
-        waterLevelVal.innerText = state.waterLevel.toFixed(1)+' %';
-        steamFlowEl.innerText = Math.floor(state.steamFlow);
-        feedFlowEl.innerText = Math.floor(state.feedFlow);
-        levelSetpointEl.innerText = state.levelSetpoint.toFixed(1);
-        pumpStatusSpan.innerText = state.pumpOn ? "RUN" : "OFF";
-        let idx = rodNames.indexOf(state.selectedRod);
-        let pos = state.rodPositions[idx];
-        rodPosVal.innerText = pos.toFixed(1);
-        rodBar.style.width = pos+'%';
-        modeText.innerText = state.reactorMode;
-        pumpSpeedVal.innerText = state.recircSpeed.toFixed(0);
-        breakerStateSpan.innerText = state.breakerClosed ? "CLOSED" : "OPEN";
+        powerValDiv.innerText = state.power.toFixed(1);
+        powerBarFill.style.width = (state.power/120*100)+'%';
+        coreFlowValDiv.innerText = state.coreFlow.toFixed(0);
+        flowBarFill.style.width = (state.coreFlow)+'%';
+        periodValDiv.innerText = (state.power>0.3?(45/(state.power+0.5)).toFixed(1):"+99.9");
+        aprmSpan.innerText = Math.floor(state.power*2.6);
+        irmSpan.innerText = Math.floor(state.power*1.7);
+        pressureValDiv.innerText = state.pressure.toFixed(0);
+        pressBarFill.style.width = (state.pressure/1450*100)+'%';
+        tempValDiv.innerText = state.temperature.toFixed(0);
+        tempBarFill.style.width = (state.temperature/380*100)+'%';
+        waterFillDiv.style.height = state.waterLevel+'%';
+        waterLevelNumSpan.innerText = state.waterLevel.toFixed(1)+' %';
+        steamFlowSpan.innerText = Math.floor(state.steamFlow);
+        feedFlowSpan.innerText = Math.floor(state.feedFlow);
+        setpointSpan.innerText = state.levelSetpoint.toFixed(1);
+        pumpStatusSpan.innerText = state.pumpOn?"ACTIVA":"DETENIDA";
+        let idx = state.selectedRodIdx;
+        rodSelectedSpan.innerText = state.rodNames[idx];
+        let rodpos = state.rodPositions[idx];
+        rodPosNumSpan.innerText = rodpos.toFixed(1);
+        rodBarFill.style.width = rodpos+'%';
+        avgRodSpan.innerText = (state.rodPositions.reduce((a,b)=>a+b,0)/8).toFixed(1);
+        modeDisplayDiv.innerText = state.reactorMode;
+        recircSpeedSpan.innerText = state.recircSpeed.toFixed(0);
+        coreInletBar.style.width = (state.coreFlow)+'%';
+        jetPumpDPSpan.innerText = (state.recircSpeed*0.23).toFixed(1);
+        breakerStateSpan.innerText = state.breakerClosed?"CLOSED":"OPEN";
+        let inletFlow = 20+state.recircSpeed*0.7;
+        coreInletBar.style.width = Math.min(100, inletFlow)+'%';
+        // Trend graph
+        state.trendPower.push(state.power); if(state.trendPower.length>60) state.trendPower.shift();
+        state.trendTemp.push(state.temperature); if(state.trendTemp.length>60) state.trendTemp.shift();
+        drawTrend();
     }
-    function reactorPhysicsLoop() {
-        if(state.meltdown) { updateUI(); requestAnimationFrame(reactorPhysicsLoop); return; }
+    function drawTrend() { if(!ctx) return; ctx.fillStyle = "#101010"; ctx.fillRect(0,0,trendCanvas.width,trendCanvas.height); ctx.beginPath(); let w=trendCanvas.width, h=trendCanvas.height; for(let i=0;i<state.trendPower.length;i++){ let x=i*(w/60); let yp=h-(state.trendPower[i]/120)*h; let yt=h-(state.trendTemp[i]/400)*h; ctx.fillStyle="#2288ff"; ctx.fillRect(x,yp,3,3); ctx.fillStyle="#ff6633"; ctx.fillRect(x,yt,3,3); } }
+    
+    function simLoop() {
+        if(state.meltdown) { updateUI(); requestAnimationFrame(simLoop); return; }
         let now = Date.now();
-        let dt = Math.min(0.1, (now - lastTimestamp)/1000);
+        let dt = Math.min(0.1, (now - (state.lastTimestamp||now))/1000);
         if(dt>0.01) updateSimulation(dt);
-        lastTimestamp = now;
+        state.lastTimestamp = now;
         updateUI();
-        requestAnimationFrame(reactorPhysicsLoop);
+        requestAnimationFrame(simLoop);
     }
-    function startRandomEvents() {
-        setInterval(()=>{
-            if(state.meltdown) return;
-            let r=Math.random();
-            if(r<0.07) { addAlarm("⚠️ FALLO ALEATORIO: Bomba recirculación inestable", "WARNING"); state.recircSpeed = Math.max(20, state.recircSpeed-20); playMechanicalClick();}
-            else if(r<0.12) { addAlarm("⚠️ PICO DE PRESIÓN TRANSITORIO", "CRITICAL"); state.pressure += 180; playSiren();}
-            else if(r<0.17) { addAlarm("ERROR SENSOR DE FLUJO", "WARNING"); }
-        },13000);
+    function randomEvents() { setInterval(()=>{ if(state.meltdown) return; let r=Math.random(); if(r<0.1){ addAlarm("⚙️ FALLO EN BOMBA RECIRCULACIÓN","WARNING"); state.recircSpeed = Math.max(25, state.recircSpeed-18); playClick(); } else if(r<0.18){ addAlarm("🔥 PICO DE PRESIÓN SÚBITO","CRITICAL"); state.pressure+=140; playAlarmSiren(); } else if(r<0.25){ addAlarm("📉 ERROR SENSOR FLUJO NÚCLEO","WARNING"); } else if(r<0.31){ addAlarm("⚠️ VIBRACIÓN EN TURBINA","WARNING"); state.turbineGov = Math.max(0.1, state.turbineGov-0.08); } }, 14000); }
+    
+    // Listeners
+    function bindButtons() {
+        document.getElementById('raiseSP').onclick=()=>{ playClick(); state.levelSetpoint=Math.min(90,state.levelSetpoint+2); };
+        document.getElementById('lowerSP').onclick=()=>{ playClick(); state.levelSetpoint=Math.max(20,state.levelSetpoint-2); };
+        document.getElementById('startFeedPump').onclick=()=>{ playClick(); state.pumpOn=true; addConsoleLog("Bomba alimentación START","INFO"); };
+        document.getElementById('stopFeedPump').onclick=()=>{ playClick(); state.pumpOn=false; };
+        document.getElementById('prevRodBtn').onclick=()=>{ playClick(); state.selectedRodIdx=(state.selectedRodIdx-1+8)%8; };
+        document.getElementById('nextRodBtn').onclick=()=>{ playClick(); state.selectedRodIdx=(state.selectedRodIdx+1)%8; };
+        document.getElementById('rodInBtn').onclick=()=>{ playClick(); let v=state.rodPositions[state.selectedRodIdx]; state.rodPositions[state.selectedRodIdx]=Math.max(0,v-6); addConsoleLog(`Rod ${state.rodNames[state.selectedRodIdx]} INSERTADO`,"INFO"); };
+        document.getElementById('rodOutBtn').onclick=()=>{ playClick(); let v=state.rodPositions[state.selectedRodIdx]; state.rodPositions[state.selectedRodIdx]=Math.min(100,v+6); addConsoleLog(`Rod ${state.rodNames[state.selectedRodIdx]} RETIRADO`,"INFO"); };
+        document.getElementById('modeStartup').onclick=()=>{ playClick(); state.reactorMode="STARTUP"; state.scramActive=false; addConsoleLog("Modo STARTUP activado","INFO"); };
+        document.getElementById('modeRun').onclick=()=>{ playClick(); state.reactorMode="RUN"; state.scramActive=false; };
+        document.getElementById('modeShutdown').onclick=()=>{ playClick(); state.reactorMode="SHUTDOWN"; };
+        document.getElementById('scramBigBtn').onclick=()=>{ playClick(); state.scramActive=true; for(let i=0;i<state.rodPositions.length;i++) state.rodPositions[i]=Math.min(3,state.rodPositions[i]); addAlarm("!!! SCRAM MANUAL ACTIVADO !!!","CRITICAL"); playAlarmSiren(); };
+        document.getElementById('govRaise').onclick=()=>{ playClick(); state.turbineGov=Math.min(1,state.turbineGov+0.05); };
+        document.getElementById('govLower').onclick=()=>{ playClick(); state.turbineGov=Math.max(0,state.turbineGov-0.05); };
+        document.getElementById('breakerBtnCtrl').onclick=()=>{ playClick(); state.breakerClosed=!state.breakerClosed; addConsoleLog(`Breaker ${state.breakerClosed?"CERRADO":"ABIERTO"}`,"INFO"); };
+        document.getElementById('recircUpBtn').onclick=()=>{ playClick(); state.recircSpeed=Math.min(100,state.recircSpeed+4.5); };
+        document.getElementById('recircDownBtn').onclick=()=>{ playClick(); state.recircSpeed=Math.max(15,state.recircSpeed-4.5); };
+        // ayuda
+        const helpModal=document.getElementById('helpModal'); const helpBtn=document.getElementById('helpButton'); const close=document.getElementById('closeHelpBtn'); const force=document.getElementById('forceCloseHelp');
+        helpBtn.onclick=()=>{ helpModal.style.display='block'; }; close.onclick=()=>{ helpModal.style.display='none'; }; force.onclick=()=>{ helpModal.style.display='none'; };
     }
-
-    // Botones
-    document.querySelectorAll('.btn-ind, .btn-emerg, .btn-yellow, .btn-red').forEach(btn=>btn.addEventListener('click',()=>{ playMechanicalClick(); if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }));
-    document.getElementById('raiseSetpoint').onclick=()=>{ state.levelSetpoint=Math.min(85, state.levelSetpoint+2); };
-    document.getElementById('lowerSetpoint').onclick=()=>{ state.levelSetpoint=Math.max(20, state.levelSetpoint-2); };
-    document.getElementById('startPump').onclick=()=>{ state.pumpOn=true; addLog("Bomba alimentación START"); };
-    document.getElementById('stopPump').onclick=()=>{ state.pumpOn=false; addLog("Bomba alimentación STOP"); };
-    document.getElementById('prevRod').onclick=()=>{ let i=rodNames.indexOf(state.selectedRod); i=(i-1+rodNames.length)%rodNames.length; state.selectedRod=rodNames[i]; };
-    document.getElementById('nextRod').onclick=()=>{ let i=rodNames.indexOf(state.selectedRod); i=(i+1)%rodNames.length; state.selectedRod=rodNames[i]; };
-    document.getElementById('rodIn').onclick=()=>{ let idx=rodNames.indexOf(state.selectedRod); state.rodPositions[idx]=Math.max(0, state.rodPositions[idx]-6); addLog(`Control rod ${state.selectedRod} INSERTADO`); };
-    document.getElementById('rodOut').onclick=()=>{ let idx=rodNames.indexOf(state.selectedRod); state.rodPositions[idx]=Math.min(100, state.rodPositions[idx]+6); addLog(`Control rod ${state.selectedRod} RETIRADO`); };
-    document.getElementById('startupBtn').onclick=()=>{ state.reactorMode="STARTUP"; if(state.scramActive) state.scramActive=false; addLog("Modo STARTUP"); };
-    document.getElementById('runBtn').onclick=()=>{ state.reactorMode="RUN"; addLog("REACTOR EN MODO RUN (Operación normal)"); };
-    document.getElementById('shutdownBtn').onclick=()=>{ state.reactorMode="SHUTDOWN"; addLog("Secuencia de PARADA MANUAL"); };
-    document.getElementById('scramBtn').onclick=()=>{ state.scramActive=true; for(let i=0;i<state.rodPositions.length;i++) state.rodPositions[i]=Math.min(state.rodPositions[i], 5); addLog("*** SCRAM ACTIVADO! Barras insertadas ***", "CRITICAL"); playSiren(); };
-    document.getElementById('govUp').onclick=()=>{ state.turbineGov=Math.min(1, state.turbineGov+0.05); };
-    document.getElementById('govDown').onclick=()=>{ state.turbineGov=Math.max(0, state.turbineGov-0.05); };
-    document.getElementById('breakerBtn').onclick=()=>{ state.breakerClosed=!state.breakerClosed; addLog(`Breaker ${state.breakerClosed?"CLOSED":"OPEN"}`); };
-    document.getElementById('recircUp').onclick=()=>{ state.recircSpeed=Math.min(100, state.recircSpeed+5); };
-    document.getElementById('recircDown').onclick=()=>{ state.recircSpeed=Math.max(10, state.recircSpeed-5); };
-
-    function init() {
-        for(let i=0;i<state.rodPositions.length;i++) state.rodPositions[i]=45;
-        state.recircSpeed=70;
-        state.pumpOn=false;
-        state.waterLevel=60;
-        state.temperature=35;
-        state.pressure=14.7;
-        state.power=0.5;
-        state.reactorMode="STARTUP";
-        lastTimestamp=Date.now();
-        document.body.addEventListener('click', ()=>{ if(audioCtx===null) { initAudio(); addLog("Sistema de sonido ACTIVADO", "INFO"); } else if(audioCtx.state==='suspended') audioCtx.resume(); });
-        startRandomEvents();
-        reactorPhysicsLoop();
-    }
+    function init() { bindButtons(); randomEvents(); simLoop(); document.body.addEventListener('click',()=>{ if(audioCtx===null) initAudio(); else if(audioCtx.state==='suspended') audioCtx.resume(); }); addAlarm("Sistema BWR-3000 inicializado. Modo STARTUP.","INFO"); addConsoleLog("Simulación lista | Siga manual de ayuda","INFO"); }
     init();
 </script>
 </body>
