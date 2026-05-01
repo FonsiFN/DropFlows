@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen Sector Secundario · Geografía e Historia</title>
+    <!-- Incluir la librería docx.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+    <!-- Estilos para vista previa opcional (no afecta la descarga) -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #eef2f5;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card {
+            max-width: 900px;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
+            padding: 30px 35px;
+            margin-bottom: 30px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #1F3564;
+            border-left: 6px solid #26215C;
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        .preview-note {
+            background: #EEEDFE;
+            color: #26215C;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+        button {
+            background: #26215C;
+            border: none;
+            padding: 14px 32px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            font-family: inherit;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 14px rgba(38,33,92,0.3);
+            transition: 0.2s;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background: #3a327c;
+            transform: scale(1.02);
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-top: 15px;
+        }
+        hr {
+            margin: 20px 0;
+            border-color: #ddd;
+        }
+        .badge {
+            background: #EEEDFE;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #26215C;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+        <h1>📘 Sector Secundario · Recursos Naturales e Industria</h1>
+        <span class="badge">Resumen para examen · docx idéntico</span>
+    </div>
+    <p style="color: #2d3748; margin-bottom: 20px; line-height: 1.5;">Este botón genera <strong>exactamente el mismo documento Word</strong> que el código original en Node.js: incluye todos los estilos (colores morados, tablas de sección, viñetas, fuentes, márgenes, numeración de bullets y textos completos).</p>
+    <div style="text-align: center;">
+        <button id="downloadBtn">
+            ⬇️ Descargar documento "Resumen_Examen_SecundarioSECTOR.docx"
+        </button>
+    </div>
+    <div class="preview-note">
+        ✅ El archivo generado contiene: minería, energías renovables/no renovables, clasificación industrial, industria 4.0, terciarización, deslocalización, objetivos UE, retos España, economía circular y sostenibilidad.
+    </div>
+    <hr />
+    <div style="font-size: 0.85rem; color: #4a5568;">
+        <span>📄 Documento fiel al original: mismas tablas con fondo morado (#EEEDFE), títulos azules (#1F3564), subtítulos grises, sangrías, bullets (• y –), interlineado y tipografía Arial. </span>
+    </div>
+</div>
+<div class="footer">
+    Generado con docx.js · mismo contenido que el script proporcionado
+</div>
+
+<script>
+    (function() {
+        // Esperamos que la librería docx esté cargada globalmente
+        if (!window.docx) {
+            console.error("docx no cargada; asegúrate de que el CDN funcione");
+            return;
+        }
+
+        const {
+            Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+            AlignmentType, BorderStyle, WidthType, ShadingType, LevelFormat, PageBreak
+        } = window.docx;
+
+        // ---------- CONSTANTES DE COLOR Y FORMATO (idénticas al código original) ----------
+        const PURPLE_DARK = "26215C";
+        const PURPLE_BG = "EEEDFE";
+        const GRAY_SUB = "555555";
+        const BLUE_TITLE = "1F3564";
+        const GRAY_SUBTITLE = "666666";
+        const CONTENT_WIDTH = 9360;
+
+        // ---------- FUNCIONES AUXILIARES (replicadas fielmente) ----------
+        function sectionHeader(text) {
+            return new Table({
+                width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+                columnWidths: [CONTENT_WIDTH],
+                borders: {
+                    top: { style: BorderStyle.NONE, size: 0 },
+                    bottom: { style: BorderStyle.NONE, size: 0 },
+                    left: { style: BorderStyle.NONE, size: 0 },
+                    right: { style: BorderStyle.NONE, size: 0 },
+                    insideH: { style: BorderStyle.NONE, size: 0 },
+                    insideV: { style: BorderStyle.NONE, size: 0 },
+                },
+                rows: [new TableRow({
+                    children: [new TableCell({
+                        width: { size: CONTENT_WIDTH, type: WidthType.DXA },
+                        shading: { fill: PURPLE_BG, type: ShadingType.CLEAR },
+                        margins: { top: 50, bottom: 50, left: 120, right: 120 },
+                        borders: {
+                            top: { style: BorderStyle.NONE, size: 0 },
+                            bottom: { style: BorderStyle.NONE, size: 0 },
+                            left: { style: BorderStyle.NONE, size: 0 },
+                            right: { style: BorderStyle.NONE, size: 0 },
+                        },
+                        children: [new Paragraph({
+                            children: [new TextRun({ text, bold: true, color: PURPLE_DARK, size: 26, font: "Arial" })]
+                        })]
+                    })]
+                })]
+            });
+        }
+
+        function subh(text) {
+            return new Paragraph({
+                spacing: { before: 120, after: 40 },
+                children: [new TextRun({ text, bold: true, color: GRAY_SUB, size: 18, font: "Arial" })]
+            });
+        }
+
+        function para(runs, after = 80) {
+            const children = runs.map(r =>
+                typeof r === 'string'
+                    ? new TextRun({ text: r, size: 20, font: "Arial" })
+                    : new TextRun({ size: 20, font: "Arial", ...r })
+            );
+            return new Paragraph({ spacing: { after }, children });
+        }
+
+        function b(runs, after = 40) {
+            const children = runs.map(r =>
+                typeof r === 'string'
+                    ? new TextRun({ text: r, size: 20, font: "Arial" })
+                    : new TextRun({ size: 20, font: "Arial", ...r })
+            );
+            return new Paragraph({ numbering: { reference: "bullets", level: 0 }, spacing: { after }, children });
+        }
+
+        function sp() { return new Paragraph({ spacing: { after: 60 } }); }
+
+        // ----- CONSTRUCCIÓN DEL DOCUMENTO EXACTAMENTE IGUAL AL CÓDIGO ORIGINAL -----
+        const doc = new Document({
+            numbering: {
+                config: [
+                    {
+                        reference: "bullets",
+                        levels: [{ level: 0, format: LevelFormat.BULLET, text: "•", alignment: AlignmentType.LEFT,
+                            style: { paragraph: { indent: { left: 360, hanging: 180 } } } }]
+                    },
+                    {
+                        reference: "subbullets",
+                        levels: [{ level: 0, format: LevelFormat.BULLET, text: "–", alignment: AlignmentType.LEFT,
+                            style: { paragraph: { indent: { left: 720, hanging: 180 } } } }]
+                    }
+                ]
+            },
+            styles: {
+                default: { document: { run: { font: "Arial", size: 20 } } }
+            },
+            sections: [{
+                properties: {
+                    page: {
+                        size: { width: 12240, height: 15840 },
+                        margin: { top: 1134, right: 1417, bottom: 1134, left: 1417 }
+                    }
+                },
+                children: [
+                    // TÍTULO
+                    new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: "Sector Secundario — Recursos Naturales e Industria", bold: true, color: BLUE_TITLE, size: 32, font: "Arial" })]
+                    }),
+                    new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 320 },
+                        children: [new TextRun({ text: "Resumen para examen · Geografía e Historia", italics: true, color: GRAY_SUBTITLE, size: 20, font: "Arial" })]
+                    }),
+
+                    // 1. LA ACTIVIDAD MINERA
+                    sectionHeader("1. La actividad minera"),
+                    sp(),
+
+                    subh("A) CONCEPTOS CLAVE (pág. 112)"),
+                    para([{ text: "Mineral: ", bold: true }, "sustancia natural inorgánica con una composición química determinada que se encuentra en la corteza terrestre."]),
+                    para([{ text: "Yacimiento: ", bold: true }, "lugar donde un mineral se halla en una concentración elevada."]),
+                    para([{ text: "Minería: ", bold: true }, "actividad de extraer rocas y minerales de los yacimientos."]),
+                    para([{ text: "Mina: ", bold: true }, "excavación que se realiza para obtener estos recursos. Pueden ser superficiales (a cielo abierto), subterráneas, marinas o mediante torres de perforación (petróleo)."]),
+
+                    subh("B) FACTORES QUE CONDICIONAN LA MINERÍA (pág. 112)"),
+                    b([{ text: "Desarrollo tecnológico: ", bold: true }, "permite extraer minerales de lugares antes impensables y con menor impacto ambiental."]),
+                    b([{ text: "Coste de explotación: ", bold: true }, "el beneficio obtenido debe ser mayor que el coste de extraerlo; las nuevas técnicas pueden aumentar la rentabilidad."]),
+                    b([{ text: "Comportamiento del mercado: ", bold: true }, "una mayor demanda hace rentable la extracción; si el precio cae, el mineral puede quedar en desuso."]),
+                    b([{ text: "Legislación medioambiental: ", bold: true }, "normas que pueden prohibir o restringir actividades mineras en ciertos países por conciencia ecológica."]),
+
+                    subh("C) PRINCIPALES PROBLEMAS (pág. 113)"),
+                    b(["La actividad altera el paisaje natural y contamina suelos y aguas."]),
+                    b(["Un consumo excesivo puede agotar los yacimientos."]),
+                    b(["En países pobres provoca conflictos armados, corrupción y expulsión de poblaciones de las áreas mineras."]),
+                    sp(),
+
+                    // 2. LAS FUENTES DE ENERGÍA
+                    sectionHeader("2. Las fuentes de energía"),
+                    sp(),
+
+                    subh("A) CONCEPTO (pág. 114)"),
+                    para(["Recursos naturales de los que se obtiene la energía necesaria para realizar actividades (calefacción, transporte, máquinas industriales)."]),
+
+                    subh("B) CLASIFICACIÓN (pág. 114)"),
+                    para([{ text: "Según su capacidad para regenerarse con el uso:", bold: true }]),
+                    b([{ text: "No renovables: ", bold: true }, "se obtienen de fuentes que existen en cantidad limitada y no pueden reponerse a corto plazo (petróleo, gas natural, carbón, uranio)."]),
+                    b([{ text: "Renovables: ", bold: true }, "proceden de fuentes que no se agotan o se reponen de manera natural si se consumen a un ritmo adecuado (hidráulica, solar, eólica, mareomotriz, geotérmica, biomasa)."]),
+                    para([{ text: "Según su procedencia:", bold: true }], 40),
+                    b([{ text: "Primarias: ", bold: true }, "se obtienen directamente de la naturaleza (combustibles fósiles, uranio, energías renovables)."]),
+                    b([{ text: "Secundarias: ", bold: true }, "se obtienen por transformación de una primaria (electricidad, gasolina, gasóleo...)."]),
+
+                    subh("C) FUENTES NO RENOVABLES"),
+                    para([{ text: "1. Carbón, gas natural y petróleo (pág. 115):", bold: true }]),
+                    b(["Proceden de fósiles (descomposición de materia orgánica durante millones de años)."]),
+                    b(["Son combustibles: arden con facilidad; su energía se obtiene mediante combustión."]),
+                    b(["Se pueden utilizar para generar electricidad."]),
+                    b(["Son fuentes nocivas para el medioambiente: liberan gases y partículas contaminantes; los vertidos de petróleo provocan catástrofes naturales."]),
+                    b(["Proporcionan la mayor parte de la energía consumida en el mundo."]),
+                    para([{ text: "2. El uranio (pág. 115):", bold: true }], 40),
+                    b(["Mineral metálico radiactivo presente en la corteza terrestre en cantidades limitadas."]),
+                    b(["Por fisión de sus átomos se obtiene energía nuclear, que se transforma en electricidad en centrales nucleares."]),
+                    b(["No contamina la atmósfera, pero plantea el problema del almacenamiento de residuos radiactivos y el riesgo de accidente nuclear."]),
+
+                    subh("D) LAS ENERGÍAS RENOVABLES"),
+                    para([{ text: "Clasificación (cuadro pág. 116):", bold: true }]),
+                    b([{ text: "Energía hidráulica: ", bold: true }, "aprovecha la fuerza de la caída del agua para generar electricidad. Mayores productores: China, Brasil, Canadá y EE.UU."]),
+                    b([{ text: "Energía eólica: ", bold: true }, "los aerogeneradores utilizan el viento para producir electricidad. Mayores productores: China, EE.UU. y Alemania."]),
+                    b([{ text: "Energía solar: ", bold: true }, "aprovecha el calor (solar térmica) o la luz (fotovoltaica) del sol. Mayores productores: China, EE.UU. y Japón."]),
+                    b([{ text: "Energía de la biomasa: ", bold: true }, "transforma materia orgánica en energía calorífica o electricidad. Francia y países nórdicos lideran en Europa."]),
+                    b([{ text: "Energía geotérmica: ", bold: true }, "aprovecha el calor interno de la Tierra. Lideran: EE.UU., Indonesia y Filipinas."]),
+                    b([{ text: "Energía mareomotriz: ", bold: true }, "utiliza el movimiento de las mareas para producir electricidad. Mayores instalaciones: República de Corea, Francia y Reino Unido."]),
+
+                    para([{ text: "Ventajas e inconvenientes de las energías renovables (pág. 117):", bold: true }], 40),
+                    b([{ text: "Ventajas: ", bold: true }, "disponibilidad global (no se concentran en unas pocas regiones) y menor impacto ambiental."]),
+                    b([{ text: "Inconvenientes: ", bold: true }, "discontinuidad o irregularidad en el suministro (dependen del clima) y dificultad de almacenamiento de la energía producida."]),
+                    sp(),
+
+                    // 3. CLASIFICACIÓN DE LAS INDUSTRIAS
+                    sectionHeader("3. Clasificación de las industrias (pág. 120)"),
+                    sp(),
+
+                    subh("SEGÚN SU LUGAR EN EL PROCESO PRODUCTIVO"),
+                    b([{ text: "De base: ", bold: true }, "se sitúan al principio del proceso; transforman materias primas en productos que son la base de otras industrias (ej. siderurgia: acero, aluminio, cobre)."]),
+                    b([{ text: "De bienes de equipo: ", bold: true }, "están en el medio del proceso; fabrican los equipos productivos que necesitan las demás industrias (motores, maquinaria, material de transporte)."]),
+                    b([{ text: "De bienes de consumo: ", bold: true }, "al final del proceso; elaboran productos destinados directamente a la población (ropa, alimentos, vehículos, electrónica de consumo)."]),
+
+                    subh("SEGÚN SU PESO O CANTIDAD DE MATERIA PRIMA"),
+                    b([{ text: "Pesadas: ", bold: true }, "requieren gran cantidad de materia prima (industrias de base y de bienes de equipo)."]),
+                    b([{ text: "Ligeras: ", bold: true }, "requieren poca materia prima (generalmente las de bienes de consumo)."]),
+
+                    subh("SEGÚN EL GRADO DE DESARROLLO"),
+                    b([{ text: "Maduras o regresivas: ", bold: true }, "crecen poco o incluso decrece su demanda (ej. textil tradicional, naval, metalurgia del hierro)."]),
+                    b([{ text: "Punteras: ", bold: true }, "están en plena expansión, apoyadas en innovaciones tecnológicas (biotecnología, microelectrónica, telecomunicaciones, robótica)."]),
+                    sp(),
+
+                    // 4. CUARTA REVOLUCIÓN INDUSTRIAL
+                    sectionHeader("4. La Cuarta Revolución Industrial en los países avanzados (pág. 123)"),
+                    sp(),
+
+                    para(["Los nuevos desarrollos tecnológicos y la hiperconectividad están conduciendo a lo que se llama la ", { text: "industria 4.0", bold: true }, ". Consiste fundamentalmente en:"]),
+                    b(["La aplicación de procesos de digitalización en todas las fases productivas de las fábricas."]),
+                    b(["El uso de sistemas de información capaces de analizar y procesar gran cantidad de datos (", { text: "big data", italics: true }, ") para facilitar la toma de decisiones y mejorar la eficiencia."]),
+                    b(["Las fábricas se convierten en ", { text: "centros de producción automatizados y digitalizados", bold: true }, ", que requieren menos mano de obra pero muy cualificada."]),
+                    b(["La automatización no solo la realizan robots físicos, sino también la ", { text: "robótica de procesos", bold: true }, " (softwares que aprenden y realizan tareas informáticas repetitivas de forma rápida y fiable)."]),
+                    sp(),
+
+                    // 5. TERCIARIZACIÓN
+                    sectionHeader("5. El concepto de terciarización de la industria (pág. 123)"),
+                    sp(),
+
+                    para(["Las empresas industriales, especialmente las punteras, destinan un porcentaje importante de su capital a ", { text: "investigación e innovación tecnológica (I+D+i)", bold: true }, "."]),
+                    para(["Además, desarrollan ", { text: "servicios periféricos", bold: true }, " no relacionados directamente con la fabricación pero básicos para el funcionamiento empresarial: marketing, logística, diseño, investigación..."]),
+                    para(["Estas actividades pertenecen al sector terciario pero ahora se integran en el proceso industrial. Por eso se habla de una ", { text: "terciarización de la industria", bold: true }, "."]),
+                    sp(),
+
+                    // 6. FACTORES DE LOCALIZACIÓN
+                    sectionHeader("6. Principales factores de localización industrial (pág. 124)"),
+                    sp(),
+
+                    b(["Las industrias suelen situarse en ", { text: "lugares bien comunicados", bold: true }, " (cerca de puertos o junto a carreteras principales) para facilitar la entrada y salida de materias primas y productos."]),
+                    b([{ text: "La disponibilidad de terreno y el precio del suelo:", bold: true }, " factor decisivo para industrias de base que requieren grandes instalaciones."]),
+                    b([{ text: "La proximidad de otras industrias similares o complementarias:", bold: true }, " se concentran en polígonos industriales o parques empresariales y tecnológicos para compartir servicios e infraestructuras."]),
+                    b([{ text: "La cercanía del mercado:", bold: true }, " importante sobre todo para industrias de bienes de consumo perecederos."]),
+                    b([{ text: "La disponibilidad, coste y cualificación de la mano de obra:", bold: true }, " en industrias tradicionales se priorizan salarios bajos; en industrias punteras, personal altamente cualificado."]),
+                    b([{ text: "La legislación medioambiental:", bold: true }, " la permisividad respecto a las emisiones es clave para industrias muy contaminantes."]),
+                    b([{ text: "Los incentivos fiscales", bold: true }, " de los Estados para atraer inversión extranjera."]),
+                    sp(),
+
+                    // 7. DESLOCALIZACIÓN Y RELOCALIZACIÓN
+                    sectionHeader("7. Deslocalización y relocalización industrial (págs. 124-125)"),
+                    sp(),
+
+                    subh("EL FENÓMENO DE LA DESLOCALIZACIÓN (pág. 124)"),
+                    para([{ text: "Deslocalización industrial: ", bold: true }, "una empresa traslada parte o todos sus procesos productivos a otro país para ahorrar costes (salarios, materias primas, energía), obteniendo una ventaja competitiva. Para la región de origen conlleva ", { text: "pérdida de empleos", bold: true }, "."]),
+                    para(["Se generalizó a partir de la década de 1990 gracias a tres factores:"]),
+                    b(["La apertura de los países emergentes y la globalización de los mercados."]),
+                    b(["El desarrollo de las tecnologías de la información y la comunicación."]),
+                    b(["La mejora y el abaratamiento de los transportes."]),
+
+                    subh("EL RETORNO: LA RELOCALIZACIÓN (pág. 125)"),
+                    para([{ text: "Relocalización: ", bold: true }, "algunas empresas inician el retorno de sus fábricas a sus países de origen, principalmente desde China. Los motivos son:"]),
+                    b(["El aumento de los salarios en los países asiáticos que acogieron las fábricas."]),
+                    b(["Los avances tecnológicos en los países desarrollados que permiten aumentar la productividad y compensar los costes más elevados."]),
+                    b(["Los incentivos fiscales en sus países de origen."]),
+                    b(["La cercanía al mercado de consumo, que favorece una rápida adaptación a los cambios en la demanda."]),
+                    sp(),
+
+                    // 8. OBJETIVOS UE
+                    sectionHeader("8. Objetivos energéticos e industriales de las políticas comunitarias (pág. 129)"),
+                    sp(),
+
+                    b(["En 2020 las ", { text: "energías renovables superaron por primera vez a las no renovables como fuente principal de electricidad", bold: true }, " en la UE."]),
+                    b(["La política comunitaria apuesta por la ", { text: "descarbonización", bold: true }, ", la eficiencia energética y liderar la transición hacia energías limpias."]),
+                    b(["Se busca reducir la dependencia energética exterior: en 2019, más del ", { text: "60 % de la energía consumida", bold: true }, " en la UE procedía de fuentes importadas."]),
+                    b(["La UE impulsa la reindustrialización y el apoyo a sectores estratégicos para mantener su competitividad industrial."]),
+                    sp(),
+
+                    // 9. PUNTOS FUERTES Y DÉBILES UE
+                    sectionHeader("9. Puntos fuertes y débiles del sector secundario en la UE (págs. 128-129)"),
+                    sp(),
+
+                    subh("PUNTOS FUERTES"),
+                    b(["La UE es la ", { text: "tercera potencia industrial del mundo", bold: true }, ", por detrás de China y EE.UU."]),
+                    b(["Seis de los veinte mayores exportadores de manufacturas pertenecen a la UE: Alemania, Países Bajos, Italia, Francia, Bélgica y España."]),
+                    b(["Ocupa una posición privilegiada en industrias farmacéutica, aeronáutica y de vehículos y maquinaria."]),
+
+                    subh("PUNTOS DÉBILES"),
+                    b([{ text: "Gran dependencia energética exterior:", bold: true }, " importa más del 60 % de su energía. La Federación de Rusia, Noruega y Argelia son sus principales suministradores."]),
+                    b(["La minería está en ", { text: "retroceso", bold: true }, " por escasez de minerales, competencia exterior y exigencia medioambiental. Solo es autosuficiente en minerales no metálicos."]),
+                    b(["La aportación al PIB de la producción manufacturera ha pasado del 17,4 % en 2000 al 13,9 % en 2020, con pérdida de empleos industriales."]),
+                    b(["Las guerras comerciales y la recesión causada por la pandemia han provocado una desaceleración del sector."]),
+                    sp(),
+
+                    // 10. ESPAÑA
+                    sectionHeader("10. El sector secundario en España: conceptos clave (págs. 130-131)"),
+                    sp(),
+
+                    para([{ text: "Burbuja inmobiliaria:", bold: true }, " gran expansión de la construcción que colapsó en la crisis de 2008. En 2007 la construcción empleaba al 13 % de la población ocupada y aportaba el 11 % al PIB; en 2019 ya solo suponía el 6,4 % del empleo y el 5,8 % del PIB."]),
+                    para([{ text: "Transformación digital:", bold: true }, " impulsar la tecnología digital no solo en los procesos productivos, sino también en el modelo de negocio, la investigación de mercado, el servicio posventa y todos los ámbitos relacionados con el producto. Implica fomentar las actividades de I+D+i y apoyar a las pequeñas y medianas empresas."]),
+                    para([{ text: "Transición ecológica:", bold: true }, " las empresas industriales deben tomar medidas para incrementar su eficiencia energética, ajustar el consumo de recursos y materias primas, evitar desperdicios superfluos y reciclar, para gestionar correctamente los residuos y cumplir los objetivos energéticos y medioambientales comunitarios."]),
+                    sp(),
+
+                    // 11. RETOS EN ESPAÑA
+                    sectionHeader("11. Retos actuales del sector secundario en España (págs. 130-131)"),
+                    sp(),
+
+                    subh("MINERÍA Y ENERGÍA"),
+                    b(["Reducir la ", { text: "alta dependencia de combustibles fósiles importados", bold: true }, " (en torno al 75 %)."]),
+                    b(["Aumentar el peso de las energías renovables (en 2020 solo suponían el 15,5 % de la energía primaria consumida)."]),
+                    subh("CONSTRUCCIÓN"),
+                    b(["Recuperarse de los efectos de la burbuja inmobiliaria de 2008 y del golpe de la pandemia (caída del 13,7 % de la producción en el cuarto trimestre de 2020)."]),
+                    subh("INDUSTRIA"),
+                    b(["Aumentar el peso de la industria en el PIB nacional (en 2020 empleaba algo más del 14 % de la población ocupada y aportaba el 14,9 % al PIB, muy por debajo del objetivo del 20 % fijado por la UE)."]),
+                    b(["Avanzar en la ", { text: "transformación digital", bold: true }, ": en 2018 apenas un tercio de las empresas industriales habían alcanzado un nivel alto de digitalización."]),
+                    b(["Impulsar la ", { text: "transición ecológica", bold: true }, ": mejorar la eficiencia energética, reciclar, reducir emisiones y cumplir los objetivos comunitarios medioambientales."]),
+                    b(["Superar la excesiva dependencia de pocas comunidades: Cataluña (22,22 %), Andalucía, Comunidad de Madrid y Comunitat Valenciana concentran la mayor parte de la producción industrial."]),
+                    sp(),
+
+                    // 12. MODELO LINEAL VS CIRCULAR
+                    sectionHeader("12. Del modelo económico lineal al modelo circular (pág. 132)"),
+                    sp(),
+
+                    subh("MODELO LINEAL"),
+                    para(["El modelo dominante actualmente: ", { text: "PRODUCIR → COMPRAR → USAR → TIRAR", bold: true }, ". Es muy perjudicial para el medioambiente e incompatible con un desarrollo sostenible porque:"]),
+                    b(["Consume una gran cantidad de recursos o materias primas y energía que pueden agotarse."]),
+                    b(["Los procesos de extracción y de producción industrial generan muchos gases y residuos tóxicos, además de contaminación por el transporte."]),
+                    b(["Cuando el producto se desecha y no se recicla, se convierte en residuo. El consumismo se ve favorecido por la corta vida útil de los productos."]),
+
+                    subh("MODELO CIRCULAR"),
+                    para(["Alternativa que surgió a finales de los años 70 para compatibilizar el crecimiento económico con el cuidado medioambiental. Se basa en:"]),
+                    b([{ text: "Optimizar recursos", bold: true }, " y utilizar energías renovables."]),
+                    b([{ text: "Reparar y usar los productos el mayor tiempo posible.", bold: true }]),
+                    b([{ text: "Reciclar los productos desechados", bold: true }, " siempre que se pueda."]),
+                    b(["Gestión adecuada de los residuos no reciclables (vertederos seguros)."]),
+                    b(["Producción responsable: priorizar energías renovables, generar el mínimo de residuos y fabricar productos duraderos."]),
+                    sp(),
+
+                    // 13. INDUSTRIA Y SOSTENIBILIDAD
+                    sectionHeader("13. ¿Cómo puede contribuir la industria a la sostenibilidad medioambiental? (pág. 133)"),
+                    sp(),
+
+                    para(["Las sociedades de los países avanzados son conscientes de la necesidad de preservar el medio natural. La industria, uno de los sectores más contaminantes, afronta este reto desde una doble vertiente:"]),
+                    b([{ text: "Introducir cambios para ser más eficiente y respetuosa con el medioambiente:", bold: true }, " reducir el consumo de recursos naturales y energía, generar menos residuos, tratarlos adecuadamente y limitar la contaminación. Una forma es la ", { text: "simbiosis industrial", bold: true }, ": los residuos de una empresa son materia prima de otras (se localizan cerca unas de otras para aprovechar al máximo este sistema)."]),
+                    b([{ text: "Fabricar «productos ecológicos»:", bold: true }, " bienes que contribuyen a cuidar el medioambiente (placas solares, aerogeneradores, coches eléctricos, bombillas y electrodomésticos de bajo consumo, baterías de larga duración)."]),
+                    b([{ text: "Suprarreciclaje o upcycling:", bold: true }, " transformar un objeto usado o residuo de forma creativa para obtener un producto de mayor valor que el original."]),
+                ]
+            }]
+        });
+
+        // Botón de descarga
+        const btn = document.getElementById('downloadBtn');
+        btn.addEventListener('click', async () => {
+            try {
+                const buffer = await Packer.toBlob(doc);
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(buffer);
+                link.href = url;
+                link.download = 'Resumen_Examen_SecundarioSECTOR.docx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error("Error al generar el documento:", error);
+                alert("Hubo un error al generar el archivo. Revisa la consola.");
+            }
+        });
+    })();
+</script>
+</body>
+</html>
