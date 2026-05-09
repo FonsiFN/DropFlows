@@ -1,101 +1,123 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans)}
-#app{padding:12px 0}
-.tab-bar{display:flex;gap:4px;margin-bottom:16px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:4px}
-.tab{flex:1;padding:8px 0;text-align:center;font-size:14px;font-weight:500;cursor:pointer;border-radius:var(--border-radius-md);border:none;background:transparent;color:var(--color-text-secondary);transition:all .15s}
-.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-tertiary)}
-.screen{display:none}
-.screen.active{display:block}
-.map-container{position:relative;width:100%;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);overflow:hidden;cursor:grab}
-.map-container.grabbing{cursor:grabbing}
-#study-svg,#game-svg{display:block;width:100%;transition:none}
-.zoom-btns{display:flex;flex-direction:column;gap:4px;position:absolute;top:10px;right:10px}
-.zoom-btn{width:32px;height:32px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:500}
-.zoom-btn:hover{background:var(--color-background-secondary)}
-.legend-row{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
-.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
-.leg-sq{width:12px;height:12px;border-radius:2px;flex-shrink:0}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 8px;text-align:center}
-.stat-n{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.answers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;margin-top:14px;max-height:260px;overflow-y:auto;padding-right:4px}
-.answer-row{display:flex;align-items:center;gap:6px}
-.ans-num{font-size:12px;font-weight:500;color:var(--color-text-secondary);min-width:22px;text-align:right}
-.ans-input{flex:1;font-size:12px;padding:5px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);outline:none;transition:border .15s}
-.ans-input:focus{border-color:#1D9E75}
-.ans-input.correct{background:#E1F5EE;border-color:#1D9E75;color:#085041}
-.ans-input.wrong{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
-.btn-primary{padding:9px 20px;border-radius:var(--border-radius-md);border:none;background:#1D9E75;color:#E1F5EE;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s}
-.btn-primary:hover{opacity:.85}
-.btn-sec{padding:9px 20px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:14px;cursor:pointer}
-.btn-sec:hover{background:var(--color-background-secondary)}
-.action-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
-.score-badge{display:inline-block;padding:4px 12px;border-radius:var(--border-radius-md);background:#E1F5EE;color:#085041;font-size:13px;font-weight:500}
-.tip{font-size:11px;color:var(--color-text-secondary);margin-top:6px}
-.filter-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
-.filter-btn{padding:4px 10px;font-size:12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer}
-.filter-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
-.tooltip-float{position:absolute;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:5px 12px;font-size:13px;font-weight:500;color:var(--color-text-primary);pointer-events:none;display:none;z-index:50;white-space:nowrap}
+#app{font-family:var(--font-sans);padding:8px 0}
+.tabs{display:flex;gap:3px;background:var(--color-background-secondary);border-radius:10px;padding:3px;margin-bottom:12px}
+.tab{flex:1;padding:7px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px;border:none;background:transparent;color:var(--color-text-secondary);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.tab.on{background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-tertiary)}
+.map-wrap{position:relative;width:100%;height:380px;border-radius:10px;border:0.5px solid var(--color-border-tertiary);overflow:hidden;background:var(--color-background-secondary);cursor:grab}
+.map-wrap.gr{cursor:grabbing}
+#study-svg,#game-svg{position:absolute;top:0;left:0;width:100%;height:100%}
+.zoom-bar{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:3px;z-index:10}
+.zb{width:28px;height:28px;border-radius:7px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.zb:hover{background:var(--color-background-secondary)}
+.tip-float{position:absolute;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:500;color:var(--color-text-primary);pointer-events:none;display:none;z-index:20;white-space:nowrap;max-width:200px}
+.filters{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.fb{padding:4px 10px;font-size:11px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .1s}
+.fb.on{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.legend{display:flex;gap:12px;margin-top:6px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-secondary)}
+.lsq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.game-layout{display:grid;grid-template-columns:1fr 220px;gap:10px;align-items:start}
+.sidebar{display:flex;flex-direction:column;gap:8px}
+.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sc{background:var(--color-background-secondary);border-radius:8px;padding:8px 6px;text-align:center}
+.sc-n{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.sc-l{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.answers-box{border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden;background:var(--color-background-primary)}
+.answers-header{padding:8px 10px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);font-size:11px;font-weight:500;color:var(--color-text-secondary);display:flex;justify-content:space-between;align-items:center}
+.answers-list{max-height:250px;overflow-y:auto}
+.ans-row{display:flex;align-items:center;gap:6px;padding:4px 8px;border-bottom:0.5px solid var(--color-border-tertiary);transition:background .1s}
+.ans-row:last-child{border-bottom:none}
+.ans-row.hl{background:var(--color-background-secondary)}
+.ans-num{font-size:11px;font-weight:500;color:var(--color-text-secondary);min-width:18px;text-align:right;flex-shrink:0}
+.ans-inp{flex:1;font-size:11px;padding:3px 6px;border-radius:5px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);outline:none;min-width:0;transition:border .15s}
+.ans-inp:focus{border-color:#1D9E75}
+.ans-inp.ok{background:#E1F5EE;border-color:#1D9E75;color:#085041}
+.ans-inp.bad{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
+.ans-check{width:16px;height:16px;flex-shrink:0;font-size:12px;display:flex;align-items:center;justify-content:center}
+.btn-row{display:flex;flex-direction:column;gap:5px}
+.bp{padding:8px;border-radius:8px;border:none;background:#1D9E75;color:#E1F5EE;font-size:12px;font-weight:500;cursor:pointer;text-align:center}
+.bp:hover{opacity:.85}
+.bs{padding:8px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:12px;cursor:pointer;text-align:center}
+.bs:hover{background:var(--color-background-secondary)}
+.result-pill{background:#E1F5EE;color:#085041;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:500;text-align:center;display:none}
+.hint-bar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.55);color:#fff;border-radius:20px;padding:4px 12px;font-size:11px;pointer-events:none;white-space:nowrap}
 </style>
 
-<h2 class="sr-only">Juego interactivo: aprende los 100 países en el mapa</h2>
+<h2 class="sr-only">Juego de geografía: aprende los 100 países</h2>
 <div id="app">
-  <div class="tab-bar">
-    <button class="tab active" onclick="switchTab('study')"><i class="ti ti-book" aria-hidden="true"></i> Estudiar</button>
-    <button class="tab" onclick="switchTab('game')"><i class="ti ti-trophy" aria-hidden="true"></i> Jugar</button>
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('study',this)"><i class="ti ti-book" aria-hidden="true"></i> Estudiar</button>
+    <button class="tab" onclick="switchTab('game',this)"><i class="ti ti-trophy" aria-hidden="true"></i> Jugar</button>
   </div>
 
-  <div id="screen-study" class="screen active">
-    <div class="filter-row">
-      <button class="filter-btn active" onclick="studyFilter('all',this)">Todos</button>
-      <button class="filter-btn" onclick="studyFilter('europa',this)">Europa</button>
-      <button class="filter-btn" onclick="studyFilter('africa',this)">África</button>
-      <button class="filter-btn" onclick="studyFilter('asia',this)">Asia</button>
-      <button class="filter-btn" onclick="studyFilter('america',this)">América</button>
-      <button class="filter-btn" onclick="studyFilter('oceania',this)">Oceanía</button>
+  <div id="s-study">
+    <div class="filters">
+      <button class="fb on" onclick="sfilt('all',this)">Todos</button>
+      <button class="fb" onclick="sfilt('europa',this)">Europa</button>
+      <button class="fb" onclick="sfilt('africa',this)">África</button>
+      <button class="fb" onclick="sfilt('asia',this)">Asia</button>
+      <button class="fb" onclick="sfilt('america',this)">América</button>
+      <button class="fb" onclick="sfilt('oceania',this)">Oceanía</button>
     </div>
-    <div class="map-container" id="study-container">
-      <svg id="study-svg" viewBox="0 0 960 500"></svg>
-      <div class="zoom-btns">
-        <button class="zoom-btn" onclick="zoomMap('study',1.4)" aria-label="Ampliar">+</button>
-        <button class="zoom-btn" onclick="zoomMap('study',1/1.4)" aria-label="Reducir">−</button>
-        <button class="zoom-btn" onclick="resetZoom('study')" aria-label="Resetear" style="font-size:13px">↺</button>
+    <div class="map-wrap" id="swrap">
+      <svg id="study-svg" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="zoom-bar">
+        <button class="zb" onclick="zm('s',1.35)">+</button>
+        <button class="zb" onclick="zm('s',1/1.35)">−</button>
+        <button class="zb" onclick="zr('s')" style="font-size:13px">↺</button>
       </div>
-      <div class="tooltip-float" id="study-tip"></div>
+      <div class="tip-float" id="stip"></div>
+      <div class="hint-bar">Arrastra · Rueda para zoom · Pasa el cursor sobre un país</div>
     </div>
-    <div class="legend-row">
-      <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>En negrita (100)</div>
-      <div class="leg"><div class="leg-sq" style="background:#D3D1C7"></div>Resto del mundo</div>
-      <div class="leg"><i class="ti ti-zoom-in" style="font-size:13px" aria-hidden="true"></i> Arrastra y usa +/− para navegar</div>
+    <div class="legend" style="margin-top:6px">
+      <div class="leg"><div class="lsq" style="background:#1D9E75"></div>En negrita (100)</div>
+      <div class="leg"><div class="lsq" style="background:#B4B2A9"></div>Resto</div>
     </div>
   </div>
 
-  <div id="screen-game" class="screen">
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-n" id="g-correct">0</div><div class="stat-l">Correctas</div></div>
-      <div class="stat-card"><div class="stat-n" id="g-wrong">0</div><div class="stat-l">Errores</div></div>
-      <div class="stat-card"><div class="stat-n" id="g-score">0</div><div class="stat-l">Puntos</div></div>
-      <div class="stat-card"><div class="stat-n" id="g-pct">0%</div><div class="stat-l">Completado</div></div>
-    </div>
-    <div class="map-container" id="game-container">
-      <svg id="game-svg" viewBox="0 0 960 500"></svg>
-      <div class="zoom-btns">
-        <button class="zoom-btn" onclick="zoomMap('game',1.4)" aria-label="Ampliar">+</button>
-        <button class="zoom-btn" onclick="zoomMap('game',1/1.4)" aria-label="Reducir">−</button>
-        <button class="zoom-btn" onclick="resetZoom('game')" aria-label="Resetear" style="font-size:13px">↺</button>
+  <div id="s-game" style="display:none">
+    <div class="game-layout">
+      <div>
+        <div class="map-wrap" id="gwrap">
+          <svg id="game-svg" viewBox="0 0 960 500" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="zoom-bar">
+            <button class="zb" onclick="zm('g',1.35)">+</button>
+            <button class="zb" onclick="zm('g',1/1.35)">−</button>
+            <button class="zb" onclick="zr('g')" style="font-size:13px">↺</button>
+          </div>
+          <div class="tip-float" id="gtip"></div>
+          <div class="hint-bar" id="ghint">Haz clic en un país para seleccionarlo</div>
+        </div>
+        <div class="legend" style="margin-top:6px">
+          <div class="leg"><div class="lsq" style="background:#5DCAA5"></div>Por identificar</div>
+          <div class="leg"><div class="lsq" style="background:#1D9E75"></div>Correcto</div>
+          <div class="leg"><div class="lsq" style="background:#E24B4A"></div>Incorrecto</div>
+          <div class="leg"><div class="lsq" style="background:#FAC775"></div>Seleccionado</div>
+        </div>
       </div>
-      <div class="tooltip-float" id="game-tip"></div>
-    </div>
-    <p class="tip" style="margin-top:6px">Escribe el nombre del país junto a su número. Pulsa Enter para validar cada respuesta.</p>
-    <div class="answers-grid" id="answers-grid"></div>
-    <div class="action-row">
-      <button class="btn-primary" onclick="checkAll()"><i class="ti ti-check" aria-hidden="true"></i> Comprobar todo</button>
-      <button class="btn-sec" onclick="revealAll()"><i class="ti ti-eye" aria-hidden="true"></i> Ver solución</button>
-      <button class="btn-sec" onclick="resetGame()"><i class="ti ti-refresh" aria-hidden="true"></i> Nueva partida</button>
-      <span class="score-badge" id="final-badge" style="display:none"></span>
+      <div class="sidebar">
+        <div class="scoreboard">
+          <div class="sc"><div class="sc-n" id="gc">0</div><div class="sc-l">Correctas</div></div>
+          <div class="sc"><div class="sc-n" id="gw">0</div><div class="sc-l">Errores</div></div>
+          <div class="sc"><div class="sc-n" id="gp">0</div><div class="sc-l">Puntos</div></div>
+          <div class="sc"><div class="sc-n" id="gpct">0%</div><div class="sc-l">Completado</div></div>
+        </div>
+        <div class="answers-box">
+          <div class="answers-header">
+            <span>Lista de países</span>
+            <span id="ans-counter" style="font-size:10px">0/100</span>
+          </div>
+          <div class="answers-list" id="alist"></div>
+        </div>
+        <div class="btn-row">
+          <button class="bp" onclick="checkAll()"><i class="ti ti-check" aria-hidden="true"></i> Comprobar todo</button>
+          <button class="bs" onclick="revealAll()"><i class="ti ti-eye" aria-hidden="true"></i> Ver solución</button>
+          <button class="bs" onclick="resetGame()"><i class="ti ti-refresh" aria-hidden="true"></i> Nueva partida</button>
+        </div>
+        <div class="result-pill" id="rpill"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -103,7 +125,7 @@ body{font-family:var(--font-sans)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
-const COUNTRIES_ES = {
+const CE = {
   "Afghanistan":"Afganistán","Germany":"Alemania","Saudi Arabia":"Arabia Saudita",
   "Algeria":"Argelia","Argentina":"Argentina","Australia":"Australia","Austria":"Austria",
   "Bangladesh":"Bangladés","Belgium":"Bélgica","Belarus":"Bielorrusia","Bolivia":"Bolivia",
@@ -140,7 +162,7 @@ const COUNTRIES_ES = {
   "Ukraine":"Ucrania","Uganda":"Uganda","Uruguay":"Uruguay","Venezuela":"Venezuela",
   "Vietnam":"Vietnam"
 };
-const REGION_MAP = {
+const RM = {
   "Germany":"europa","Austria":"europa","Belgium":"europa","Belarus":"europa",
   "Bosnia and Herz.":"europa","Bulgaria":"europa","Croatia":"europa","Denmark":"europa",
   "Slovakia":"europa","Slovenia":"europa","Spain":"europa","Estonia":"europa",
@@ -173,275 +195,328 @@ const REGION_MAP = {
   "Uruguay":"america","Venezuela":"america",
   "Australia":"oceania","New Zealand":"oceania","Micronesia":"oceania"
 };
-const TARGET = new Set(Object.keys(COUNTRIES_ES));
-const normalize = s => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
-const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
-const C = {bold:"#1D9E75",dim:isDark?"#3a3a38":"#D3D1C7",highlight:"#FAC775",
-  correct:"#1D9E75",wrong:"#E24B4A",stroke:isDark?"rgba(255,255,255,0.13)":"#fff",
-  numBg:"rgba(255,255,255,0.88)",numTxt:"#085041"};
+const TARGET = new Set(Object.keys(CE));
+const norm = s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
 
-let studyFilter_ = 'all';
-let gameNums = {}, gameAnswers = {};
-let transforms = {study:{k:1,x:0,y:0}, game:{k:1,x:0,y:0}};
-let dragging = {study:false, game:false};
-let dragStart = {};
-let worldData = null;
+let WD = null;
+let sFilter = 'all';
+let gNums = {}, gState = {};
+let selectedNum = null;
+let T = {s:{k:1,x:0,y:0}, g:{k:1,x:0,y:0}};
+let drag = {s:false, g:false};
+let ds0 = {};
 
-function switchTab(t){
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelector(`.tab:nth-child(${t==='study'?1:2})`).classList.add('active');
-  document.getElementById('screen-'+t).classList.add('active');
+function switchTab(t, btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('s-study').style.display = t==='study'?'block':'none';
+  document.getElementById('s-game').style.display = t==='game'?'block':'none';
 }
 
-function getTransformStr(id){
-  const t=transforms[id];
-  return `translate(${t.x},${t.y}) scale(${t.k})`;
+function getT(id){ return `translate(${T[id].x},${T[id].y}) scale(${T[id].k})`; }
+function applyT(id){ const g=document.getElementById(id+'g'); if(g) g.setAttribute('transform',getT(id)); }
+function zm(id, f){
+  T[id].k = Math.min(10, Math.max(1, T[id].k*f));
+  applyT(id);
+  if(id==='g') updateNumLabels();
 }
-function applyTransform(id){
-  const g = document.getElementById(id+'-g');
-  if(g) g.setAttribute('transform', getTransformStr(id));
-}
-function zoomMap(id, factor){
-  const t = transforms[id];
-  t.k = Math.min(8, Math.max(1, t.k * factor));
-  applyTransform(id);
-}
-function resetZoom(id){
-  transforms[id]={k:1,x:0,y:0};
-  applyTransform(id);
-}
+function zr(id){ T[id]={k:1,x:0,y:0}; applyT(id); if(id==='g') updateNumLabels(); }
 
-function setupDrag(id){
-  const cont = document.getElementById(id+'-container');
-  cont.addEventListener('mousedown', e=>{
-    if(e.target.closest('.zoom-btns')) return;
-    dragging[id]=true;
-    dragStart[id]={x:e.clientX-transforms[id].x, y:e.clientY-transforms[id].y};
-    cont.classList.add('grabbing');
+function setupDrag(id, wrapId){
+  const el = document.getElementById(wrapId);
+  el.addEventListener('mousedown', e=>{
+    if(e.target.closest('.zoom-bar')) return;
+    drag[id]=true; ds0[id]={x:e.clientX-T[id].x, y:e.clientY-T[id].y};
+    el.classList.add('gr');
   });
   window.addEventListener('mousemove', e=>{
-    if(!dragging[id]) return;
-    transforms[id].x = e.clientX - dragStart[id].x;
-    transforms[id].y = e.clientY - dragStart[id].y;
-    applyTransform(id);
+    if(!drag[id]) return;
+    T[id].x=e.clientX-ds0[id].x; T[id].y=e.clientY-ds0[id].y;
+    applyT(id); if(id==='g') updateNumLabels();
   });
-  window.addEventListener('mouseup', ()=>{ dragging[id]=false; cont.classList.remove('grabbing'); });
-  cont.addEventListener('wheel', e=>{
+  window.addEventListener('mouseup', ()=>{ drag[id]=false; el.classList.remove('gr'); });
+  el.addEventListener('wheel', e=>{
     e.preventDefault();
-    zoomMap(id, e.deltaY<0?1.15:1/1.15);
-  }, {passive:false});
+    const f = e.deltaY<0?1.15:1/1.15;
+    const rect = el.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const svgW = rect.width, svgH = rect.height;
+    const px = (mx - T[id].x) / T[id].k;
+    const py = (my - T[id].y) / T[id].k;
+    T[id].k = Math.min(10, Math.max(1, T[id].k*f));
+    T[id].x = mx - px * T[id].k;
+    T[id].y = my - py * T[id].k;
+    applyT(id); if(id==='g') updateNumLabels();
+  },{passive:false});
 }
 
-function buildStudyMap(features, pathFn){
-  const svg = document.getElementById('study-svg');
-  svg.innerHTML = '';
-  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.id = 'study-g';
-  svg.appendChild(g);
-  const tip = document.getElementById('study-tip');
-  const ds = d3.select(g);
+function buildStudyMap(feats, pf){
+  const svg = d3.select('#study-svg');
+  svg.selectAll('*').remove();
+  const g = svg.append('g').attr('id','sg');
+  const tip = document.getElementById('stip');
+  const wrap = document.getElementById('swrap');
 
-  ds.selectAll('path').data(features).join('path')
-    .attr('d', pathFn)
-    .attr('fill', d=>{
-      const n=d.properties&&d.properties.name;
-      if(!TARGET.has(n)) return C.dim;
-      if(studyFilter_!=='all' && REGION_MAP[n]!==studyFilter_) return isDark?"#1a3a2a":"#9FE1CB";
-      return C.bold;
-    })
-    .attr('opacity', d=>{
-      const n=d.properties&&d.properties.name;
-      if(!TARGET.has(n)) return 1;
-      if(studyFilter_==='all') return 1;
-      return REGION_MAP[n]===studyFilter_ ? 1 : 0.3;
-    })
-    .attr('stroke', C.stroke).attr('stroke-width',0.4)
-    .style('cursor', d=> TARGET.has(d.properties&&d.properties.name)?'pointer':'default')
+  g.selectAll('path').data(feats).join('path')
+    .attr('d', pf)
+    .attr('fill', d=>getFillStudy(d.properties&&d.properties.name))
+    .attr('opacity', d=>getOpStudy(d.properties&&d.properties.name))
+    .attr('stroke', isDark?'rgba(255,255,255,0.13)':'#fff')
+    .attr('stroke-width', 0.4)
+    .style('cursor', d=>TARGET.has(d.properties&&d.properties.name)?'pointer':'default')
     .on('mousemove', function(ev,d){
       const n=d.properties&&d.properties.name;
-      const es=COUNTRIES_ES[n]; if(!es) return;
-      d3.select(this).attr('fill',C.highlight);
-      const rect = document.getElementById('study-container').getBoundingClientRect();
-      tip.style.display='block';
-      tip.style.left=(ev.clientX-rect.left+12)+'px';
-      tip.style.top=(ev.clientY-rect.top-30)+'px';
-      tip.textContent=es;
+      const es=CE[n]; if(!es) return;
+      d3.select(this).attr('fill','#FAC775');
+      const r=wrap.getBoundingClientRect();
+      tip.style.left=(ev.clientX-r.left+12)+'px';
+      tip.style.top=(ev.clientY-r.top-32)+'px';
+      tip.style.display='block'; tip.textContent=es;
     })
     .on('mouseleave', function(ev,d){
       const n=d.properties&&d.properties.name;
-      d3.select(this).attr('fill', ()=>{
-        if(!TARGET.has(n)) return C.dim;
-        if(studyFilter_!=='all'&&REGION_MAP[n]!==studyFilter_) return isDark?"#1a3a2a":"#9FE1CB";
-        return C.bold;
-      }).attr('opacity',()=>{
-        if(!TARGET.has(n)) return 1;
-        if(studyFilter_==='all') return 1;
-        return REGION_MAP[n]===studyFilter_?1:0.3;
-      });
+      d3.select(this).attr('fill',getFillStudy(n)).attr('opacity',getOpStudy(n));
       tip.style.display='none';
     });
 
-  const targetFeats = features.filter(d=>TARGET.has(d.properties&&d.properties.name));
-  ds.selectAll('text.lbl').data(targetFeats).join('text')
-    .attr('class','lbl')
-    .attr('transform', d=>{ const c=pathFn.centroid(d); return `translate(${c[0]},${c[1]})`; })
+  const tf = feats.filter(d=>TARGET.has(d.properties&&d.properties.name));
+  g.selectAll('text.sl').data(tf).join('text')
+    .attr('class','sl')
+    .attr('transform',d=>{ const c=pf.centroid(d); return `translate(${c[0]},${c[1]})`; })
     .attr('text-anchor','middle').attr('dy','0.35em')
     .style('font-size','5.5px').style('font-family','var(--font-sans)')
-    .style('fill', isDark?'#fff':'#04342C').style('font-weight','500')
+    .style('fill',isDark?'#fff':'#04342C').style('font-weight','500')
     .style('pointer-events','none').style('paint-order','stroke')
-    .style('stroke', isDark?'#085041':'#E1F5EE').style('stroke-width','2.5px')
-    .text(d=>{ const es=COUNTRIES_ES[d.properties.name]||''; return es.length>14?es.split(' ').slice(0,2).join(' '):es; });
+    .style('stroke',isDark?'#085041':'#E1F5EE').style('stroke-width','2.5px')
+    .text(d=>{ const es=CE[d.properties.name]||''; return es.length>14?es.split(' ').slice(0,2).join(' '):es; });
 }
 
-function studyFilter(r, btn){
-  studyFilter_=r;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if(worldData) buildStudyMap(worldData.features, worldData.pathFn);
+function getFillStudy(n){
+  if(!TARGET.has(n)) return isDark?'#3a3a38':'#D3D1C7';
+  if(sFilter!=='all' && RM[n]!==sFilter) return isDark?'#1a3a2a':'#9FE1CB';
+  return '#1D9E75';
+}
+function getOpStudy(n){
+  if(!TARGET.has(n)) return 1;
+  if(sFilter==='all') return 1;
+  return RM[n]===sFilter?1:0.28;
 }
 
-function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function sfilt(r, btn){
+  sFilter=r;
+  document.querySelectorAll('#s-study .fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  if(WD){ buildStudyMap(WD.feats, WD.pf); applyT('s'); }
+}
 
-function buildGameMap(features, pathFn){
-  const svg = document.getElementById('game-svg');
-  svg.innerHTML='';
-  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.id='game-g'; svg.appendChild(g);
-  const tip = document.getElementById('game-tip');
-  const ds = d3.select(g);
-  const targetFeats = features.filter(d=>TARGET.has(d.properties&&d.properties.name));
-  const shuffled = shuffle(targetFeats);
-  gameNums={};
-  shuffled.forEach((f,i)=>{ gameNums[f.properties.name]=i+1; });
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
 
-  ds.selectAll('path').data(features).join('path')
-    .attr('d', pathFn)
-    .attr('fill', d=>TARGET.has(d.properties&&d.properties.name)?'#5DCAA5':C.dim)
-    .attr('stroke', C.stroke).attr('stroke-width',0.4)
-    .attr('id', d=>{ const n=d.properties&&d.properties.name; return TARGET.has(n)?'gp-'+gameNums[n]:'';})
+function buildGameMap(feats, pf){
+  const svg = d3.select('#game-svg');
+  svg.selectAll('*').remove();
+  const g = svg.append('g').attr('id','gg');
+  const tip = document.getElementById('gtip');
+  const wrap = document.getElementById('gwrap');
+  const tg = feats.filter(d=>TARGET.has(d.properties&&d.properties.name));
+  const shuffled = shuffle(tg);
+  gNums={}; gState={};
+  shuffled.forEach((f,i)=>{ gNums[f.properties.name]=i+1; });
+
+  g.selectAll('path').data(feats).join('path')
+    .attr('d',pf)
+    .attr('fill',d=>TARGET.has(d.properties&&d.properties.name)?'#5DCAA5':(isDark?'#3a3a38':'#D3D1C7'))
+    .attr('stroke',isDark?'rgba(255,255,255,0.13)':'#fff')
+    .attr('stroke-width',0.4)
+    .attr('id',d=>{ const n=d.properties&&d.properties.name; return TARGET.has(n)?'gpath-'+gNums[n]:''; })
+    .style('cursor',d=>TARGET.has(d.properties&&d.properties.name)?'pointer':'default')
+    .on('click', function(ev,d){
+      const n=d.properties&&d.properties.name;
+      if(!TARGET.has(n)) return;
+      const num=gNums[n];
+      if(gState[num]==='correct') return;
+      selectNum(num);
+    })
     .on('mousemove', function(ev,d){
       const n=d.properties&&d.properties.name;
       if(!TARGET.has(n)) return;
-      const num=gameNums[n];
-      const rect=document.getElementById('game-container').getBoundingClientRect();
+      const num=gNums[n];
+      const r=wrap.getBoundingClientRect();
+      tip.style.left=(ev.clientX-r.left+12)+'px';
+      tip.style.top=(ev.clientY-r.top-32)+'px';
       tip.style.display='block';
-      tip.style.left=(ev.clientX-rect.left+12)+'px';
-      tip.style.top=(ev.clientY-rect.top-30)+'px';
-      tip.textContent='País #'+num;
-      document.getElementById('ainp-'+num)&&document.getElementById('ainp-'+num).focus();
+      if(gState[num]==='correct') tip.textContent='✓ '+CE[n];
+      else tip.textContent='País #'+num;
     })
-    .on('mouseleave', ()=>tip.style.display='none');
+    .on('mouseleave',()=>tip.style.display='none');
 
-  targetFeats.forEach(f=>{
+  const labsG = g.append('g').attr('id','num-labels');
+  tg.forEach(f=>{
     const n=f.properties.name;
-    const num=gameNums[n];
-    const c=pathFn.centroid(f);
+    const num=gNums[n];
+    const c=pf.centroid(f);
     if(isNaN(c[0])||isNaN(c[1])) return;
-    const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
-    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
-    const label=String(num);
-    const w=label.length>2?14:11; const h=8;
-    bg.setAttribute('x',c[0]-w/2); bg.setAttribute('y',c[1]-h/2);
-    bg.setAttribute('width',w); bg.setAttribute('height',h);
-    bg.setAttribute('rx',2); bg.setAttribute('fill',C.numBg);
-    bg.setAttribute('opacity','0.92'); bg.style.pointerEvents='none';
-    txt.setAttribute('x',c[0]); txt.setAttribute('y',c[1]);
-    txt.setAttribute('text-anchor','middle'); txt.setAttribute('dominant-baseline','central');
-    txt.style.fontSize='5px'; txt.style.fontWeight='600';
-    txt.style.fontFamily='var(--font-sans)'; txt.style.fill=C.numTxt;
-    txt.style.pointerEvents='none'; txt.textContent=label;
-    g.appendChild(bg); g.appendChild(txt);
+    const fg=labsG.append('g').attr('id','glbl-'+num).attr('transform',`translate(${c[0]},${c[1]})`).style('pointer-events','none');
+    fg.append('rect').attr('id','glbg-'+num).attr('rx',1.5).attr('fill','rgba(255,255,255,0.9)');
+    fg.append('text').attr('id','gltxt-'+num).attr('text-anchor','middle').attr('dominant-baseline','central')
+      .style('font-family','var(--font-sans)').style('fill','#085041').style('font-weight','600');
   });
-
-  const grid = document.getElementById('answers-grid');
-  grid.innerHTML='';
-  const sorted = Object.entries(gameNums).sort((a,b)=>a[1]-b[1]);
-  sorted.forEach(([engName, num])=>{
-    const es = COUNTRIES_ES[engName];
-    const row = document.createElement('div');
-    row.className='answer-row';
-    row.innerHTML=`<span class="ans-num">${num}.</span><input class="ans-input" id="ainp-${num}" data-eng="${engName}" data-es="${es}" placeholder="País #${num}" autocomplete="off">`;
-    grid.appendChild(row);
-  });
-  document.querySelectorAll('.ans-input').forEach(inp=>{
-    inp.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){ checkOne(inp); focusNext(inp); }
-    });
-    inp.addEventListener('input', ()=>{ inp.classList.remove('correct','wrong'); });
-  });
-  gameAnswers={};
-  updateGameStats();
-  document.getElementById('final-badge').style.display='none';
+  updateNumLabels();
+  buildAnswerList();
+  updateStats();
+  selectedNum=null;
+  document.getElementById('rpill').style.display='none';
 }
 
-function checkOne(inp){
+function updateNumLabels(){
+  const k = T.g.k;
+  const baseSize = 5.5;
+  const sz = Math.max(3, baseSize / k);
+  const pad = sz * 0.5;
+  Object.entries(gNums).forEach(([n,num])=>{
+    const txt = document.getElementById('gltxt-'+num);
+    const bg = document.getElementById('glbg-'+num);
+    if(!txt||!bg) return;
+    const label = String(num);
+    txt.style.fontSize = sz+'px';
+    txt.textContent = label;
+    const w = label.length>2 ? sz*3.2 : sz*2.4;
+    const h = sz*1.6;
+    bg.setAttribute('x',-w/2); bg.setAttribute('y',-h/2);
+    bg.setAttribute('width',w); bg.setAttribute('height',h);
+  });
+}
+
+function selectNum(num){
+  selectedNum=num;
+  document.querySelectorAll('[id^="gpath-"]').forEach(el=>{
+    const n2=parseInt(el.id.replace('gpath-',''));
+    if(gState[n2]==='correct') return;
+    if(gState[n2]==='wrong'){ el.setAttribute('fill','#E24B4A'); return; }
+    el.setAttribute('fill', n2===num?'#FAC775':'#5DCAA5');
+  });
+  const row = document.getElementById('arow-'+num);
+  if(row){
+    row.scrollIntoView({block:'nearest',behavior:'smooth'});
+    document.querySelectorAll('.ans-row').forEach(r=>r.classList.remove('hl'));
+    row.classList.add('hl');
+    const inp = document.getElementById('ainp-'+num);
+    if(inp && gState[num]!=='correct') inp.focus();
+  }
+  document.getElementById('ghint').textContent = 'País #'+num+' seleccionado — escribe el nombre a la derecha';
+}
+
+function buildAnswerList(){
+  const list = document.getElementById('alist');
+  list.innerHTML='';
+  const sorted = Object.entries(gNums).sort((a,b)=>a[1]-b[1]);
+  sorted.forEach(([eng,num])=>{
+    const es=CE[eng];
+    const row=document.createElement('div');
+    row.className='ans-row'; row.id='arow-'+num;
+    row.innerHTML=`<span class="ans-num">${num}.</span><input class="ans-inp" id="ainp-${num}" data-eng="${eng}" data-es="${es}" placeholder="Escribe aquí..." autocomplete="off" spellcheck="false"><span class="ans-check" id="achk-${num}"></span>`;
+    list.appendChild(row);
+    const inp=row.querySelector('input');
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){ checkOne(num); }
+    });
+    inp.addEventListener('focus',()=>{
+      if(gState[num]==='correct') return;
+      selectNum(num);
+    });
+    inp.addEventListener('input',()=>{
+      if(gState[num]) return;
+      inp.classList.remove('ok','bad');
+      document.getElementById('achk-'+num).textContent='';
+    });
+    row.addEventListener('click',()=>{
+      if(gState[num]==='correct') return;
+      selectNum(num);
+    });
+  });
+}
+
+function checkOne(num){
+  const inp=document.getElementById('ainp-'+num);
+  if(!inp) return;
   const es=inp.dataset.es;
   const val=inp.value.trim();
   if(!val) return;
-  const ok = normalize(val)===normalize(es);
-  inp.classList.toggle('correct',ok);
-  inp.classList.toggle('wrong',!ok);
-  const num=inp.id.replace('ainp-','');
-  gameAnswers[num]=ok;
-  const pathEl=document.getElementById('gp-'+num);
-  if(pathEl) pathEl.setAttribute('fill',ok?C.correct:C.wrong);
-  updateGameStats();
+  const ok=norm(val)===norm(es);
+  gState[num]=ok?'correct':'wrong';
+  inp.classList.toggle('ok',ok); inp.classList.toggle('bad',!ok);
+  inp.disabled=ok;
+  document.getElementById('achk-'+num).textContent=ok?'✓':'✗';
+  document.getElementById('achk-'+num).style.color=ok?'#1D9E75':'#E24B4A';
+  const path=document.getElementById('gpath-'+num);
+  if(path) path.setAttribute('fill',ok?'#1D9E75':'#E24B4A');
+  if(!ok){ setTimeout(()=>{ inp.classList.remove('bad'); inp.disabled=false; document.getElementById('achk-'+num).textContent=''; gState[num]=null; const p2=document.getElementById('gpath-'+num); if(p2) p2.setAttribute('fill',selectedNum===num?'#FAC775':'#5DCAA5'); }, 900); }
+  updateStats();
+  if(ok && selectedNum===num){ const next=findNextUnanswered(num); if(next) selectNum(next); }
 }
 
-function focusNext(inp){
-  const all=[...document.querySelectorAll('.ans-input')];
-  const idx=all.indexOf(inp);
-  if(idx<all.length-1) all[idx+1].focus();
+function findNextUnanswered(from){
+  const nums=Object.values(gNums).sort((a,b)=>a-b);
+  const idx=nums.indexOf(from);
+  for(let i=idx+1;i<nums.length;i++){ if(gState[nums[i]]!=='correct') return nums[i]; }
+  for(let i=0;i<idx;i++){ if(gState[nums[i]]!=='correct') return nums[i]; }
+  return null;
 }
 
 function checkAll(){
-  document.querySelectorAll('.ans-input').forEach(inp=>checkOne(inp));
-  const total=Object.keys(gameNums).length;
-  const ok=Object.values(gameAnswers).filter(Boolean).length;
-  const pts=ok*10;
-  const badge=document.getElementById('final-badge');
-  badge.style.display='inline-block';
-  badge.textContent=`${ok}/${total} correctas · ${pts} puntos`;
+  Object.values(gNums).sort((a,b)=>a-b).forEach(num=>{
+    if(gState[num]!=='correct') checkOne(num);
+  });
+  showResult();
 }
 
 function revealAll(){
-  document.querySelectorAll('.ans-input').forEach(inp=>{
-    inp.value=inp.dataset.es;
-    inp.classList.add('correct'); inp.classList.remove('wrong');
-    const num=inp.id.replace('ainp-','');
-    gameAnswers[num]=true;
-    const pathEl=document.getElementById('gp-'+num);
-    if(pathEl) pathEl.setAttribute('fill',C.correct);
+  Object.entries(gNums).forEach(([eng,num])=>{
+    if(gState[num]==='correct') return;
+    const inp=document.getElementById('ainp-'+num);
+    if(inp){ inp.value=CE[eng]; inp.classList.add('ok'); inp.classList.remove('bad'); inp.disabled=true; }
+    document.getElementById('achk-'+num).textContent='✓';
+    document.getElementById('achk-'+num).style.color='#1D9E75';
+    gState[num]='correct';
+    const p=document.getElementById('gpath-'+num);
+    if(p) p.setAttribute('fill','#1D9E75');
   });
-  updateGameStats();
-}
-
-function updateGameStats(){
-  const total=Object.keys(gameNums).length||100;
-  const ok=Object.values(gameAnswers).filter(Boolean).length;
-  const bad=Object.values(gameAnswers).filter(v=>v===false).length;
-  const pts=ok*10 - bad*5;
-  document.getElementById('g-correct').textContent=ok;
-  document.getElementById('g-wrong').textContent=bad;
-  document.getElementById('g-score').textContent=Math.max(0,pts);
-  document.getElementById('g-pct').textContent=Math.round(ok/total*100)+'%';
+  updateStats(); showResult();
 }
 
 function resetGame(){
-  if(worldData) buildGameMap(worldData.features, worldData.pathFn);
-  document.getElementById('final-badge').style.display='none';
+  T.g={k:1,x:0,y:0}; applyT('g');
+  if(WD) buildGameMap(WD.feats, WD.pf);
 }
 
-setupDrag('study');
-setupDrag('game');
+function updateStats(){
+  const ok=Object.values(gState).filter(v=>v==='correct').length;
+  const bad=Object.values(gState).filter(v=>v==='wrong').length;
+  const pts=Math.max(0,ok*10-bad*3);
+  document.getElementById('gc').textContent=ok;
+  document.getElementById('gw').textContent=bad;
+  document.getElementById('gp').textContent=pts;
+  document.getElementById('gpct').textContent=Math.round(ok/100*100)+'%';
+  document.getElementById('ans-counter').textContent=ok+'/100';
+}
+
+function showResult(){
+  const ok=Object.values(gState).filter(v=>v==='correct').length;
+  const pill=document.getElementById('rpill');
+  pill.style.display='block';
+  pill.textContent=ok+'/100 correctas · '+Math.max(0,ok*10)+ ' puntos';
+}
+
+setupDrag('s','swrap');
+setupDrag('g','gwrap');
 
 d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world=>{
-  const features = topojson.feature(world, world.objects.countries).features;
-  const proj = d3.geoNaturalEarth1().scale(153).translate([480,250]);
-  const pathFn = d3.geoPath(proj);
-  worldData = {features, pathFn};
-  buildStudyMap(features, pathFn);
-  buildGameMap(features, pathFn);
+  const feats=topojson.feature(world,world.objects.countries).features;
+  const proj=d3.geoNaturalEarth1().scale(153).translate([480,250]);
+  const pf=d3.geoPath(proj);
+  WD={feats,pf};
+  buildStudyMap(feats,pf);
+  buildGameMap(feats,pf);
 });
 </script>
