@@ -1,0 +1,211 @@
+
+<style>
+#controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; align-items:center; }
+#controls button { font-size:12px; padding:5px 12px; cursor:pointer; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:transparent; color:var(--color-text-secondary); }
+#controls button.active { background:var(--color-background-secondary); color:var(--color-text-primary); border-color:var(--color-border-primary); }
+#controls label { font-size:12px; color:var(--color-text-secondary); display:flex; align-items:center; gap:5px; cursor:pointer; }
+#tooltip-box { position:fixed; background:var(--color-background-primary); border:0.5px solid var(--color-border-secondary); border-radius:var(--border-radius-md); padding:5px 12px; font-size:13px; font-weight:500; color:var(--color-text-primary); pointer-events:none; display:none; z-index:100; }
+#map-svg { display:block; width:100%; }
+.legend { display:flex; gap:16px; margin-top:6px; flex-wrap:wrap; }
+.leg-item { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--color-text-secondary); }
+.leg-dot { width:12px; height:12px; border-radius:2px; }
+</style>
+
+<h2 class="sr-only">Mapa de los 100 países en negrita para estudiar</h2>
+
+<div id="controls">
+  <span style="font-size:12px;color:var(--color-text-secondary);font-weight:500;">Región:</span>
+  <button class="active" onclick="filterRegion('all',this)">Todos</button>
+  <button onclick="filterRegion('europe',this)">Europa</button>
+  <button onclick="filterRegion('africa',this)">África</button>
+  <button onclick="filterRegion('asia',this)">Asia</button>
+  <button onclick="filterRegion('america',this)">América</button>
+  <button onclick="filterRegion('oceania',this)">Oceanía</button>
+  <label><input type="checkbox" id="chk-labels" checked onchange="toggleLabels()"> Nombres</label>
+</div>
+
+<div id="tooltip-box"></div>
+<svg id="map-svg" viewBox="0 0 960 500"></svg>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div>En negrita (100)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#B4B2A9"></div>Resto del mundo</div>
+  <div class="leg-item" style="font-style:italic;">Pasa el cursor para ver el nombre</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const COUNTRIES_ES = {
+  "Afghanistan":"Afganistán","Germany":"Alemania","Saudi Arabia":"Arabia Saudita",
+  "Algeria":"Argelia","Argentina":"Argentina","Australia":"Australia","Austria":"Austria",
+  "Bangladesh":"Bangladés","Belgium":"Bélgica","Belarus":"Bielorrusia","Bolivia":"Bolivia",
+  "Bosnia and Herz.":"Bosnia y Herzegovina","Brazil":"Brasil","Bulgaria":"Bulgaria",
+  "Cape Verde":"Cabo Verde","Cameroon":"Camerún","Canada":"Canadá","Chad":"Chad",
+  "Chile":"Chile","China":"China","Vatican":"Ciudad del Vaticano","Colombia":"Colombia",
+  "North Korea":"Corea del Norte","South Korea":"Corea del Sur","Costa Rica":"Costa Rica",
+  "Croatia":"Croacia","Cuba":"Cuba","Denmark":"Dinamarca","Ecuador":"Ecuador",
+  "Egypt":"Egipto","United Arab Emirates":"Emiratos Árabes Unidos","Slovakia":"Eslovaquia",
+  "Slovenia":"Eslovenia","Spain":"España","United States of America":"Estados Unidos",
+  "Estonia":"Estonia","Ethiopia":"Etiopía","Philippines":"Filipinas","Finland":"Finlandia",
+  "France":"Francia","Greece":"Grecia","Guatemala":"Guatemala","Guinea":"Guinea",
+  "Eq. Guinea":"Guinea Ecuatorial","Honduras":"Honduras","Hungary":"Hungría",
+  "India":"India","Indonesia":"Indonesia","Iraq":"Irak","Iran":"Irán",
+  "Ireland":"Irlanda","Iceland":"Islandia","Israel":"Israel","Italy":"Italia",
+  "Japan":"Japón","Jordan":"Jordania","Kenya":"Kenia","Kuwait":"Kuwait",
+  "Latvia":"Letonia","Lebanon":"Líbano","Liberia":"Liberia","Libya":"Libia",
+  "Lithuania":"Lituania","Luxembourg":"Luxemburgo","Madagascar":"Madagascar",
+  "Malaysia":"Malasia","Maldives":"Maldivas","Mali":"Malí","Malta":"Malta",
+  "Morocco":"Marruecos","Mauritania":"Mauritania","Mexico":"México",
+  "Micronesia":"Micronesia","Monaco":"Mónaco","Mongolia":"Mongolia",
+  "Mozambique":"Mozambique","Nepal":"Nepal","Nicaragua":"Nicaragua",
+  "Niger":"Níger","Nigeria":"Nigeria","Norway":"Noruega","New Zealand":"Nueva Zelanda",
+  "Netherlands":"Países Bajos","Pakistan":"Pakistán","Panama":"Panamá",
+  "Paraguay":"Paraguay","Peru":"Perú","Poland":"Polonia","Portugal":"Portugal",
+  "United Kingdom":"Reino Unido","Central African Rep.":"República Centroafricana",
+  "Czech Rep.":"República Checa","Congo":"República del Congo",
+  "Dem. Rep. Congo":"República Democrática del Congo",
+  "Dominican Rep.":"República Dominicana","South Africa":"República Sudafricana",
+  "Romania":"Rumanía","Russia":"Rusia","Senegal":"Senegal","Serbia":"Serbia",
+  "Syria":"Siria","Somalia":"Somalia","Sri Lanka":"Sri Lanka","Swaziland":"Suazilandia",
+  "Sudan":"Sudán","S. Sudan":"Sudán del Sur","Sweden":"Suecia","Switzerland":"Suiza",
+  "Thailand":"Tailandia","Tanzania":"Tanzania","Tunisia":"Túnez","Turkey":"Turquía",
+  "Ukraine":"Ucrania","Uganda":"Uganda","Uruguay":"Uruguay","Venezuela":"Venezuela",
+  "Vietnam":"Vietnam"
+};
+
+const REGION = {
+  "Germany":"europe","Austria":"europe","Belgium":"europe","Belarus":"europe",
+  "Bosnia and Herz.":"europe","Bulgaria":"europe","Croatia":"europe","Denmark":"europe",
+  "Slovakia":"europe","Slovenia":"europe","Spain":"europe","Estonia":"europe",
+  "Finland":"europe","France":"europe","Greece":"europe","Hungary":"europe",
+  "Ireland":"europe","Iceland":"europe","Italy":"europe","Latvia":"europe",
+  "Lithuania":"europe","Luxembourg":"europe","Malta":"europe","Monaco":"europe",
+  "Netherlands":"europe","Norway":"europe","Poland":"europe","Portugal":"europe",
+  "United Kingdom":"europe","Czech Rep.":"europe","Romania":"europe","Russia":"europe",
+  "Serbia":"europe","Sweden":"europe","Switzerland":"europe","Ukraine":"europe",
+  "Vatican":"europe",
+  "Algeria":"africa","Cameroon":"africa","Cape Verde":"africa","Chad":"africa",
+  "Eq. Guinea":"africa","Ethiopia":"africa","Guinea":"africa","Kenya":"africa",
+  "Liberia":"africa","Libya":"africa","Madagascar":"africa","Mali":"africa",
+  "Mauritania":"africa","Morocco":"africa","Mozambique":"africa","Niger":"africa",
+  "Nigeria":"africa","Central African Rep.":"africa","Congo":"africa",
+  "Dem. Rep. Congo":"africa","South Africa":"africa","Senegal":"africa",
+  "Somalia":"africa","Sudan":"africa","S. Sudan":"africa","Tanzania":"africa",
+  "Tunisia":"africa","Uganda":"africa","Swaziland":"africa",
+  "Afghanistan":"asia","Saudi Arabia":"asia","Bangladesh":"asia","China":"asia",
+  "North Korea":"asia","South Korea":"asia","United Arab Emirates":"asia",
+  "Philippines":"asia","India":"asia","Indonesia":"asia","Iraq":"asia","Iran":"asia",
+  "Israel":"asia","Japan":"asia","Jordan":"asia","Kuwait":"asia","Lebanon":"asia",
+  "Malaysia":"asia","Maldives":"asia","Mongolia":"asia","Nepal":"asia",
+  "Pakistan":"asia","Sri Lanka":"asia","Syria":"asia","Thailand":"asia",
+  "Turkey":"asia","Vietnam":"asia",
+  "Argentina":"america","Bolivia":"america","Brazil":"america","Canada":"america",
+  "Chile":"america","Colombia":"america","Costa Rica":"america","Cuba":"america",
+  "Dominican Rep.":"america","Ecuador":"america","Guatemala":"america",
+  "Honduras":"america","Mexico":"america","Nicaragua":"america","Panama":"america",
+  "Paraguay":"america","Peru":"america","United States of America":"america",
+  "Uruguay":"america","Venezuela":"america",
+  "Australia":"oceania","New Zealand":"oceania","Micronesia":"oceania"
+};
+
+const TARGET = new Set(Object.keys(COUNTRIES_ES));
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+let currentRegion = 'all';
+let showLabels = true;
+let pathSel, labelSel, allFeatures, pathFn;
+
+const colorBold = "#1D9E75";
+const colorDim = isDark ? "#3a3a38" : "#D3D1C7";
+const colorHigh = "#FAC775";
+const stroke = isDark ? "rgba(255,255,255,0.13)" : "#fff";
+
+function getFill(engName, region){
+  if(!TARGET.has(engName)) return colorDim;
+  if(region !== 'all' && REGION[engName] !== region) return isDark?"#2a4a3a":"#9FE1CB";
+  return colorBold;
+}
+
+function filterRegion(r, btn){
+  currentRegion = r;
+  document.querySelectorAll('#controls button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  pathSel && pathSel.attr('fill', d => getFill(d.properties&&d.properties.name, r))
+    .attr('opacity', d => {
+      const n = d.properties&&d.properties.name;
+      if(!TARGET.has(n)) return 1;
+      if(r==='all') return 1;
+      return REGION[n]===r ? 1 : 0.35;
+    });
+  labelSel && labelSel.style('opacity', d => {
+    const n = d.properties&&d.properties.name;
+    if(!TARGET.has(n)) return 0;
+    if(r==='all') return 1;
+    return REGION[n]===r ? 1 : 0;
+  });
+}
+
+function toggleLabels(){
+  showLabels = document.getElementById('chk-labels').checked;
+  labelSel && labelSel.style('display', showLabels ? null : 'none');
+}
+
+const tip = document.getElementById('tooltip-box');
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+  const svg = d3.select('#map-svg');
+  const proj = d3.geoNaturalEarth1().scale(153).translate([480,250]);
+  pathFn = d3.geoPath(proj);
+  allFeatures = topojson.feature(world, world.objects.countries).features;
+
+  pathSel = svg.selectAll('path.cp')
+    .data(allFeatures)
+    .join('path')
+    .attr('class','cp')
+    .attr('d', pathFn)
+    .attr('fill', d => getFill(d.properties&&d.properties.name, 'all'))
+    .attr('stroke', stroke)
+    .attr('stroke-width', 0.4)
+    .style('cursor', d => TARGET.has(d.properties&&d.properties.name) ? 'pointer' : 'default')
+    .on('mousemove', function(event, d){
+      const n = d.properties&&d.properties.name;
+      const es = COUNTRIES_ES[n];
+      if(!es) return;
+      d3.select(this).attr('fill', colorHigh);
+      tip.style.display='block';
+      tip.style.left=(event.clientX+14)+'px';
+      tip.style.top=(event.clientY-30)+'px';
+      tip.textContent = es;
+    })
+    .on('mouseleave', function(event, d){
+      const n = d.properties&&d.properties.name;
+      d3.select(this).attr('fill', getFill(n, currentRegion));
+      tip.style.display='none';
+    });
+
+  const targetFeatures = allFeatures.filter(d => TARGET.has(d.properties&&d.properties.name));
+
+  labelSel = svg.selectAll('text.lbl')
+    .data(targetFeatures)
+    .join('text')
+    .attr('class','lbl')
+    .attr('transform', d => {
+      const c = pathFn.centroid(d);
+      return `translate(${c[0]},${c[1]})`;
+    })
+    .attr('text-anchor','middle')
+    .attr('dy','0.35em')
+    .style('font-size','5.5px')
+    .style('font-family','var(--font-sans)')
+    .style('fill', isDark?'#fff':'#04342C')
+    .style('font-weight','500')
+    .style('pointer-events','none')
+    .style('paint-order','stroke')
+    .style('stroke', isDark?'#085041':'#E1F5EE')
+    .style('stroke-width','2px')
+    .text(d => {
+      const es = COUNTRIES_ES[d.properties.name] || '';
+      return es.length > 14 ? es.split(' ').slice(0,2).join(' ') : es;
+    });
+});
+</script>
